@@ -5,7 +5,6 @@ import javax.swing.*;
 import javax.swing.SwingUtilities;
 
 public class KaraokeGame {
-
     public static void main(String[] args) {
             JFrame frame = new JFrame("Noteworthy");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
