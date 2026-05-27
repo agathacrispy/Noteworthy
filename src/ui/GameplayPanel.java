@@ -32,6 +32,8 @@ public class GameplayPanel extends JPanel {
         loadAudio();
         clock.start();
         timer.start();
+        if (vocals != null) vocals.start();
+        if (backing != null) backing.start();
         AIM.startRecording();
     }
 

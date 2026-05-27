@@ -4,7 +4,7 @@ import java.util.List;
 
 public class PerformanceResult {
     private List<Double> frameScores;
-    private double similarityPct;
-    private String letterGrade;
-    private List<PitchFrame> userPitchTrack;
+    private double similarity; // as pct
+    private String grade;
+    private List<PitchFrame> userPitches;
 }
