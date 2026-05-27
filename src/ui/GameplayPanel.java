@@ -1,5 +1,6 @@
 package ui;
 
+import audio.AudioInputManager;
 import engine.LyricsSync;
 import engine.PlaybackClock;
 import loader.SongLoader;
@@ -8,15 +9,19 @@ import model.LyricLine;
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 
 public class GameplayPanel extends JPanel {
+
     private LyricLine currentLine;
     private final PlaybackClock clock = new PlaybackClock();
     private final Timer timer;
     private final SongLoader sl = new SongLoader();
     private Clip backing;
     private Clip vocals;
+
 
     public GameplayPanel() {
         sl.loadLyrics();
@@ -31,6 +36,8 @@ public class GameplayPanel extends JPanel {
         timer.start();
         if (backing != null) backing.start();
         if (vocals != null) vocals.start();
+
+
     }
 
     private void loadAudio() {
