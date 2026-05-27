@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 
 // class to confirm johnnys audio recording and playback works
+// in GameplayPanel, AIM.startRecording() and AIM.stopRecording() are used - check that class
 
 public class TestPanel extends JPanel {
 
