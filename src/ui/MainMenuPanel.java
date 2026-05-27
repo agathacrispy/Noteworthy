@@ -59,6 +59,8 @@ public class MainMenuPanel extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
+
+        /*
         g2d.setColor(new Color(0, 150, 255));
         g2d.fillOval((int) (550-50*Math.cos(Math.PI/1200.0*mouseX)), (int) (350-50*Math.cos(Math.PI/800.0*mouseY)), 100, 100);
         g2d.setColor(new Color(0, 150, 255, 75));
@@ -76,6 +78,6 @@ public class MainMenuPanel extends JPanel {
         g2d.fillOval((int) (535-30*Math.cos(Math.PI/1200.0*mouseX)), (int) (135-30*Math.cos(Math.PI/800.0*(mouseY+265))), 130, 130);
         g2d.setColor(Color.WHITE);
         g2d.drawString("Play", (int) (585-50*Math.cos(Math.PI/1200.0*mouseX)), (int) (200-50*Math.cos(Math.PI/800.0*(mouseY+250))));
-
+         */
     }
 }
