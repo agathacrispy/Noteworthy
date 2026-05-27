@@ -9,8 +9,6 @@ import model.LyricLine;
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 
 public class GameplayPanel extends JPanel {
@@ -21,7 +19,7 @@ public class GameplayPanel extends JPanel {
     private final SongLoader sl = new SongLoader();
     private Clip backing;
     private Clip vocals;
-
+    private final AudioInputManager AIM = new AudioInputManager();
 
     public GameplayPanel() {
         sl.loadLyrics();
@@ -34,10 +32,7 @@ public class GameplayPanel extends JPanel {
         loadAudio();
         clock.start();
         timer.start();
-        if (backing != null) backing.start();
-        if (vocals != null) vocals.start();
-
-
+        AIM.startRecording();
     }
 
     private void loadAudio() {
@@ -55,6 +50,7 @@ public class GameplayPanel extends JPanel {
     private void onSongFinished() {
         timer.stop();
         clock.reset();
+        AIM.stopRecording();
         if (vocals != null) vocals.stop();
     }
 

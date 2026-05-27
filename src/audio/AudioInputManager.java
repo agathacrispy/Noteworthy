@@ -25,14 +25,11 @@ public class AudioInputManager {
 
             isRecording = true;
 
-            // --- THE THREAD ---
             // We MUST run the capture loop in a separate thread.
             Thread captureThread = new Thread(() -> {
                 byte[] buffer = new byte[8192];
                 while (isRecording) {
                     int bytesRead = line.read(buffer, 0, buffer.length);
-                    // At this point, 'buffer' contains your raw PCM audio data.
-                    // You could write this to a ByteArrayOutputStream or a file.
                     bucket.write(buffer, 0, bytesRead);
                 }
                 line.close();
@@ -48,7 +45,6 @@ public class AudioInputManager {
     public void playBack(){
         byte[] audioData = bucket.toByteArray();
 
-
         AudioFormat format = new AudioFormat(44100, 16, 1, true, false);
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
 
@@ -57,9 +53,7 @@ public class AudioInputManager {
             speaker.open(format);
             speaker.start();
 
-            // 3. Play the data in a new thread
             new Thread(() -> {
-                // Pour the data from our byte array into the speaker
                 speaker.write(audioData, 0, audioData.length);
                 speaker.drain();
                 speaker.close();
