@@ -1,8 +1,7 @@
 import ui.GameplayPanel;
 import ui.MainMenuPanel;
-import ui.TestPanel;
 
-import java.awt.*;
+import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.SwingUtilities;
 
@@ -13,7 +12,14 @@ public class KaraokeGame {
             JFrame frame = new JFrame("Noteworthy");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(500, 500);
-            frame.add(new GameplayPanel());
+
+            frame.add(new MainMenuPanel(song -> {
+                frame.getContentPane().removeAll();
+                frame.getContentPane().add(new GameplayPanel(song));
+                frame.revalidate();
+                frame.repaint();
+            }));
+
             //frame.add(new TestPanel());
             frame.setVisible(true);
         });
