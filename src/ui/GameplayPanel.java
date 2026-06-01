@@ -21,9 +21,10 @@ public class GameplayPanel extends JPanel {
     private final SongLoader sl = new SongLoader();
     private Clip backing;
     private Clip vocals;
-
+    FloatControl gainControl = (FloatControl) Clip.getControl(FloatControl.Type.MASTER_GAIN);
 
     public GameplayPanel() {
+
         sl.loadLyrics();
         clock.start();
         timer = new Timer(50, e -> {

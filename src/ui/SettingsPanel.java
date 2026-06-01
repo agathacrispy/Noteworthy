@@ -8,15 +8,15 @@ import java.awt.event.MouseListener;
 
 public class SettingsPanel extends JPanel {
 
-    private int volumeSliderX = getWidth()/4 + (getWidth()/2)/6 - 15;
-    private int volumeSliderY = (getHeight()/2) - 5;
     private JSlider volumeSlider = new JSlider();
+    public int volumeLevel = volumeSlider.getValue();
 
     public SettingsPanel(){
 
         setLayout(new BorderLayout());
 
         volumeSlider = new JSlider(0, 100, 50);
+        volumeSlider.setOpaque(false);
 
         add(volumeSlider, BorderLayout.WEST);
 
@@ -36,7 +36,9 @@ public class SettingsPanel extends JPanel {
     }
 
     @Override
-    public void paint(Graphics g){
+    public void paintComponent(Graphics g){
+        super.paintComponent(g);
+
         Graphics2D g2d = (Graphics2D) g;
         int centerX = getWidth() / 2;
         int centerY = getHeight() / 2;
@@ -51,8 +53,6 @@ public class SettingsPanel extends JPanel {
 
         g2d.setFont(new Font("Arial", Font.BOLD, 15));
         g2d.drawString("Output Volume", centerX/6 + 10, centerY - 20);
-        g2d.drawRect(centerX/6, centerY, getWidth()/4, 10);
-        g2d.drawRect(getWidth() - centerX/4 - centerX/6, centerY, getWidth()/4, 10);
     }
 
 }
