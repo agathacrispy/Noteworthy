@@ -21,15 +21,15 @@ public class GameplayPanel extends JPanel {
     private Clip vocals;
     private final AudioInputManager AIM = new AudioInputManager();
 
-    public GameplayPanel() {
-        sl.loadLyrics();
+    public GameplayPanel(String song) {
+        sl.loadLyrics(song);
         clock.start();
         timer = new Timer(50, e -> {
             long elapsed = clock.elapsedMs();
             currentLine = LyricsSync.getCurrentLine(sl.lyrics, elapsed);
             repaint();
         });
-        loadAudio();
+        loadAudio(song);
         clock.start();
         timer.start();
         if (vocals != null) vocals.start();
@@ -37,9 +37,9 @@ public class GameplayPanel extends JPanel {
         AIM.startRecording();
     }
 
-    private void loadAudio() {
-        backing = loadClip("songs/dangerous-woman/backing.wav");
-        vocals  = loadClip("songs/dangerous-woman/vocals.wav");
+    private void loadAudio(String song) {
+        backing = loadClip("songs/" + song + "/backing.wav");
+        vocals  = loadClip("songs/" + song + "/vocals.wav");
         if (backing != null) {
             backing.addLineListener(event -> {
                 if (event.getType() == LineEvent.Type.STOP) {
