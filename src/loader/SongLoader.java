@@ -26,7 +26,7 @@ public class SongLoader {
                     .collect(Collectors.toCollection(ArrayList::new));
             for (Path p : songPaths) {
                 songs.add(p.getFileName().toString());
-                System.out.println(p.getFileName().toString());
+                //System.out.println(p.getFileName().toString());
             }
 
         } catch (IOException e) {
