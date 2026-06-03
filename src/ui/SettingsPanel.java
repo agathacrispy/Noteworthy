@@ -31,10 +31,12 @@ public class SettingsPanel extends JPanel {
         Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
         ArrayList<String> inputs = new ArrayList<>();
 
+        Line.Info targetLineInfo = new Line.Info(TargetDataLine.class);
+
         for (Mixer.Info mixerInfo : mixerInfos) {
             Mixer mixer = AudioSystem.getMixer(mixerInfo);
 
-            if (mixer.getTargetLineInfo().length > 0) {
+            if (mixer.isLineSupported(targetLineInfo)) {
                 inputs.add(mixerInfo.getName());
             }
         }
