@@ -10,16 +10,32 @@ public class AudioInputManager {
     private boolean playReady = false;
     ByteArrayOutputStream bucket = new ByteArrayOutputStream();
 
-    public void startRecording(){
+    public void startRecording(String selectedDevice){
         bucket.reset();
         AudioFormat format = new AudioFormat(44100, 16, 1, true, false);
         DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
         if (!AudioSystem.isLineSupported(info)) {
             System.err.println("Line not supported");
         }
-
         try {
-            line = (TargetDataLine) AudioSystem.getLine(info);
+            Mixer.Info selectedMixerInfo = null;
+            for (Mixer.Info mixerInfo : AudioSystem.getMixerInfo()) {
+                if (mixerInfo.getName().equals(selectedDevice)) {
+                    selectedMixerInfo = mixerInfo;
+                    break;
+                }
+            }
+            if (selectedMixerInfo != null) {
+                Mixer mixer = AudioSystem.getMixer(selectedMixerInfo);
+                line = (TargetDataLine) mixer.getLine(info);
+            } else {
+                System.out.println("Device not found");
+                if (!AudioSystem.isLineSupported(info)) {
+                    System.err.println("Line not working");
+                    return;
+                }
+                line = (TargetDataLine) AudioSystem.getLine(info);
+            }
             line.open(format);
             line.start();
 

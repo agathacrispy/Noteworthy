@@ -10,6 +10,7 @@ import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.util.Properties;
 
 public class GameplayPanel extends JPanel {
 
@@ -21,7 +22,13 @@ public class GameplayPanel extends JPanel {
     private Clip vocals;
     private final AudioInputManager AIM = new AudioInputManager();
 
+    String filePath = "settings.properties";
+    Properties properties = new Properties();
+
     public GameplayPanel(String song) {
+
+        loadProperties();
+
         sl.loadLyrics(song);
         clock.start();
         timer = new Timer(50, e -> {
@@ -34,7 +41,7 @@ public class GameplayPanel extends JPanel {
         timer.start();
         if (vocals != null) vocals.start();
         if (backing != null) backing.start();
-        AIM.startRecording();
+        AIM.startRecording(properties.getProperty(micDevice));
     }
 
     private void loadAudio(String song) {
