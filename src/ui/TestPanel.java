@@ -4,6 +4,9 @@ import audio.AudioInputManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 // class to confirm johnnys audio recording and playback works
@@ -25,7 +28,7 @@ public class TestPanel extends JPanel {
 
         recordButton.addActionListener(e -> {
             if (!AIM.isRecording()) {
-                AIM.startRecording(properties.getProperty(micDevice));
+                AIM.startRecording(properties.getProperty("micDevice"));
                 recordButton.setText("Stop");
             } else {
                 AIM.stopRecording();
@@ -41,5 +44,16 @@ public class TestPanel extends JPanel {
 
         add(recordButton);
         add(playButton);
+
+    }
+
+    private void loadProperties() {
+        try (InputStream input = new FileInputStream(filePath)) {
+            properties.load(input);
+        } catch (IOException ex) {
+            System.out.println("Err loading settings.properties");
+            properties.setProperty("volume", "50");
+            properties.setProperty("micSensitivity", "50");
+        }
     }
 }

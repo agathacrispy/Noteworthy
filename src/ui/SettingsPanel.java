@@ -1,5 +1,6 @@
 package ui;
 
+import audio.AudioInputManager;
 import loader.SettingsManager;
 
 import javax.swing.*;
@@ -20,6 +21,10 @@ public class SettingsPanel extends JPanel {
     private JSlider micSensSlider = new JSlider();
     private JComboBox<String> dropdown;
     private static SettingsManager sm = new SettingsManager();
+
+    private final AudioInputManager AIM = new AudioInputManager();
+    private final JButton recordButton = new JButton("Record");
+    private final JButton playButton = new JButton("Play");
 
     String filePath = "settings.properties";
     Properties properties = new Properties();
@@ -74,6 +79,34 @@ public class SettingsPanel extends JPanel {
         inputPanel.add(dropdown, BorderLayout.CENTER);
         add(inputPanel, BorderLayout.SOUTH);
 
+        //start of test pannel code
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
+
+        recordButton.addActionListener(e -> {
+            if (!AIM.isRecording()) {
+                AIM.startRecording(properties.getProperty("micDevice"));
+                recordButton.setText("Stop");
+            } else {
+                AIM.stopRecording();
+                recordButton.setText("Record");
+            }
+        });
+
+        playButton.addActionListener(e -> {
+            if (AIM.isPlayReady()) {
+                AIM.playBack();
+            }
+        });
+
+// Add the buttons to the sub-panel
+        buttonPanel.add(recordButton);
+        buttonPanel.add(playButton);
+
+// Add the sub-panel to the CENTER of your main layout
+        add(buttonPanel, BorderLayout.CENTER);
+
+        //end of test pannel code
 
         volumeSlider.addChangeListener(new ChangeListener() {
             @Override
