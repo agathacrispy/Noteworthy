@@ -1,6 +1,7 @@
 import ui.GameplayPanel;
 import ui.MainMenuPanel;
 import ui.SettingsPanel;
+import ui.TestPanel;
 
 import java.util.ArrayList;
 import javax.swing.*;

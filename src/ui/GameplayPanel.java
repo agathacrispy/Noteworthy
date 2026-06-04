@@ -10,6 +10,9 @@ import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class GameplayPanel extends JPanel {
@@ -41,7 +44,7 @@ public class GameplayPanel extends JPanel {
         timer.start();
         if (vocals != null) vocals.start();
         if (backing != null) backing.start();
-        AIM.startRecording(properties.getProperty(micDevice));
+        AIM.startRecording(properties.getProperty("micDevice"));
     }
 
     private void loadAudio(String song) {
@@ -88,6 +91,16 @@ public class GameplayPanel extends JPanel {
             FontMetrics fm = g2d.getFontMetrics();
             int x = centerX - fm.stringWidth(currentLine.getLine()) / 2;
             g2d.drawString(currentLine.getLine(), x, centerY);
+        }
+    }
+
+    private void loadProperties() {
+        try (InputStream input = new FileInputStream(filePath)) {
+            properties.load(input);
+        } catch (IOException ex) {
+            System.out.println("Err loading settings.properties");
+            properties.setProperty("volume", "50");
+            properties.setProperty("micSensitivity", "50");
         }
     }
 }
