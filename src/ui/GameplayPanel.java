@@ -17,9 +17,6 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.function.Consumer;
 
-// handles gameplay: audio playback, lyric sync, and mic recording
-// calls onFinished with a PerformanceResult when the backing track ends
-// scoring is not yet implemented - result will be null until ScoringEngine is wired in
 public class GameplayPanel extends JPanel {
 
     private LyricLine currentLine;
@@ -44,7 +41,7 @@ public class GameplayPanel extends JPanel {
 
         loadProperties();
         sl.loadLyrics(song);
-        sl.loadPitches(song);   // loaded for future scoring use
+        sl.loadPitches(song);
         clock.start();
         timer = new Timer(50, e -> {
             long elapsed = clock.elapsedMs();
@@ -77,8 +74,6 @@ public class GameplayPanel extends JPanel {
         clock.reset();
         AIM.stopRecording();
         if (vocals != null) vocals.stop();
-        // scoring will be computed here once ScoringEngine and PitchDetector are implemented
-        // for now, passes null result to the results screen
         onFinished.accept(null);
     }
 
