@@ -2,9 +2,6 @@ package ui;
 
 import audio.AudioInputManager;
 import audio.PitchDetector;
-import engine.LyricsSync;
-import engine.PlaybackClock;
-import engine.PitchSync;
 import engine.ScoringEngine;
 import loader.SongLoader;
 import model.LyricLine;
@@ -28,7 +25,7 @@ import java.util.function.Consumer;
 public class GameplayPanel extends JPanel {
 
     private LyricLine currentLine;
-    private final PlaybackClock clock = new PlaybackClock();
+    private long clockStart = -1;
     private final Timer timer;
     private final SongLoader sl = new SongLoader();
     private Clip backing;
@@ -58,14 +55,14 @@ public class GameplayPanel extends JPanel {
         sl.loadPitches(song);
 
         timer = new Timer(50, e -> {
-            long elapsed = clock.elapsedMs();
-            currentLine = LyricsSync.getCurrentLine(sl.lyrics, elapsed);
+            long elapsed = clockStart == -1 ? 0 : (System.nanoTime() - clockStart) / 1_000_000;
+            currentLine = getCurrentLine(sl.lyrics, elapsed);
             processLivePitch(elapsed);
             repaint();
         });
 
         loadAudio(song);
-        clock.start();
+        clockStart = System.nanoTime();
         timer.start();
         if (vocals != null) vocals.start();
         if (backing != null) backing.start();
@@ -82,7 +79,7 @@ public class GameplayPanel extends JPanel {
             long chunkMs = Math.round((double) bucketOffset / 2 / PitchDetector.SAMPLE_RATE * 1000);
             liveUserPitches.add(new PitchFrame(chunkMs, userMidi));
 
-            PitchFrame expected = PitchSync.getCurrentPitch(sl.pitches, chunkMs);
+            PitchFrame expected = getCurrentPitch(sl.pitches, chunkMs);
             int songMidi = (expected != null) ? expected.getPitch() : -1;
 
             currentUserMidi = userMidi;
@@ -121,7 +118,7 @@ public class GameplayPanel extends JPanel {
 
     private void onSongFinished() {
         timer.stop();
-        clock.reset();
+        clockStart = -1;
         AIM.stopRecording();
         if (vocals != null) vocals.stop();
         if (backing != null) backing.stop();
@@ -157,6 +154,24 @@ public class GameplayPanel extends JPanel {
             properties.setProperty("volume", "50");
             properties.setProperty("micSensitivity", "50");
         }
+    }
+
+    private static LyricLine getCurrentLine(List<LyricLine> lyrics, long elapsedMs) {
+        LyricLine current = null;
+        for (LyricLine line : lyrics) {
+            if (line.getStartMs() <= elapsedMs) current = line;
+            else break;
+        }
+        return current;
+    }
+
+    private static PitchFrame getCurrentPitch(List<PitchFrame> pitches, long elapsedMs) {
+        PitchFrame current = null;
+        for (PitchFrame frame : pitches) {
+            if (frame.getMs() <= elapsedMs) current = frame;
+            else break;
+        }
+        return current;
     }
 
     @Override

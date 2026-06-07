@@ -1,7 +1,6 @@
 package ui;
 
 import audio.AudioInputManager;
-import loader.SettingsManager;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -20,7 +19,6 @@ public class SettingsPanel extends JPanel {
     private JSlider volumeSlider = new JSlider();
     private JSlider micSensSlider = new JSlider();
     private JComboBox<String> dropdown;
-    private static SettingsManager sm = new SettingsManager();
 
     private final AudioInputManager AIM = new AudioInputManager();
     private final JButton recordButton = new JButton("Record");
@@ -40,7 +38,6 @@ public class SettingsPanel extends JPanel {
 
         for (Mixer.Info mixerInfo : mixerInfos) {
             Mixer mixer = AudioSystem.getMixer(mixerInfo);
-
             if (mixer.isLineSupported(targetLineInfo)) {
                 inputs.add(mixerInfo.getName());
             }
@@ -61,7 +58,6 @@ public class SettingsPanel extends JPanel {
         JLabel volumeLabel = new JLabel("Output Volume", SwingConstants.CENTER);
         volumeLabel.setFont(new Font("Arial", Font.BOLD, 15));
         volumeSlider = new JSlider(0, 100, Integer.parseInt(properties.getProperty("volume")));
-
         volumePanel.add(volumeLabel, BorderLayout.NORTH);
         volumePanel.add(volumeSlider, BorderLayout.CENTER);
         add(volumePanel, BorderLayout.WEST);
@@ -70,7 +66,6 @@ public class SettingsPanel extends JPanel {
         JLabel micLabel = new JLabel("Mic Sensitivity", SwingConstants.CENTER);
         micLabel.setFont(new Font("Arial", Font.BOLD, 15));
         micSensSlider = new JSlider(0, 100, Integer.parseInt(properties.getProperty("micSensitivity")));
-
         micPanel.add(micLabel, BorderLayout.NORTH);
         micPanel.add(micSensSlider, BorderLayout.CENTER);
         add(micPanel, BorderLayout.EAST);
@@ -79,7 +74,6 @@ public class SettingsPanel extends JPanel {
         JLabel inputLabel = new JLabel("Mic Input", SwingConstants.CENTER);
         inputPanel.setFont(new Font("Arial", Font.BOLD, 15));
         dropdown = new JComboBox<>(inputs.toArray(new String[0]));
-
         inputPanel.add(inputLabel, BorderLayout.NORTH);
         inputPanel.add(dropdown, BorderLayout.CENTER);
         add(inputPanel, BorderLayout.SOUTH);
@@ -105,14 +99,13 @@ public class SettingsPanel extends JPanel {
 
         buttonPanel.add(recordButton);
         buttonPanel.add(playButton);
-
         add(buttonPanel, BorderLayout.CENTER);
 
         volumeSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (!volumeSlider.getValueIsAdjusting()) {
-                    sm.changeVolume(volumeSlider.getValue());
+                    saveSetting("volume", String.valueOf(volumeSlider.getValue()));
                 }
             }
         });
@@ -121,7 +114,7 @@ public class SettingsPanel extends JPanel {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (!micSensSlider.getValueIsAdjusting()) {
-                    sm.changeSens(micSensSlider.getValue());
+                    saveSetting("micSensitivity", String.valueOf(micSensSlider.getValue()));
                 }
             }
         });
@@ -131,11 +124,19 @@ public class SettingsPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 Object selected = dropdown.getSelectedItem();
                 if (selected != null) {
-                    sm.changeInput(selected.toString());
+                    saveSetting("micDevice", selected.toString());
                 }
             }
         });
+    }
 
+    private void saveSetting(String key, String value) {
+        properties.setProperty(key, value);
+        try (FileOutputStream out = new FileOutputStream(filePath)) {
+            properties.store(out, null);
+        } catch (IOException e) {
+            System.err.println("err saving settings: " + e.getMessage());
+        }
     }
 
     private void loadProperties() {
