@@ -7,48 +7,41 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 
+// reads and writes settings.properties
+
 public class SettingsManager {
 
     String filePath = "settings.properties";
     Properties properties = new Properties();
 
     public SettingsManager() {
-
         try (FileInputStream in = new FileInputStream(filePath)) {
             properties.load(in);
         } catch (IOException e) {
-            System.err.println("Err reading " + e.getMessage());
+            System.err.println("err reading settings: " + e.getMessage());
         }
-
     }
 
     public void changeVolume(int volume) {
-        properties.setProperty("volume", (String.valueOf(volume)));
-
-        try(FileOutputStream in = new FileOutputStream(filePath)){
-            properties.store(in, "Volume has been changed");
-        }catch (IOException e) {
-            System.err.println("Err reading " + e.getMessage());
-        }
+        properties.setProperty("volume", String.valueOf(volume));
+        save("volume changed");
     }
 
-    public void changeSens(int sens){
-        properties.setProperty("micSensitivity", (String.valueOf(sens)));
-
-        try(FileOutputStream in = new FileOutputStream(filePath)){
-            properties.store(in, "Sensitivity has been changed");
-        }catch (IOException e) {
-            System.err.println("Err reading " + e.getMessage());
-        }
+    public void changeSens(int sens) {
+        properties.setProperty("micSensitivity", String.valueOf(sens));
+        save("sensitivity changed");
     }
 
-    public void changeInput(String input){
+    public void changeInput(String input) {
         properties.setProperty("micDevice", input);
+        save("input device changed");
+    }
 
-        try(FileOutputStream in = new FileOutputStream(filePath)){
-            properties.store(in, "Input device has been changed");
-        }catch (IOException e) {
-            System.err.println("Err reading " + e.getMessage());
+    private void save(String comment) {
+        try (FileOutputStream out = new FileOutputStream(filePath)) {
+            properties.store(out, comment);
+        } catch (IOException e) {
+            System.err.println("err saving settings: " + e.getMessage());
         }
     }
 }
