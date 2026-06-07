@@ -3,9 +3,9 @@ package model;
 import java.util.List;
 
 public class PerformanceResult {
-    private List<Double> frameScores; // score per pitch frame: 100 * e^(-k * diff^2)
-    private double similarity; // as a pct
-    private String grade; // letter grade from similarity
+    private List<Double> frameScores;
+    private double similarity;
+    private String grade;
     private List<PitchFrame> userPitches;
     private List<PitchFrame> songPitches;
 

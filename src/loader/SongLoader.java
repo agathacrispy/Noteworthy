@@ -2,6 +2,7 @@ package loader;
 
 import model.LyricLine;
 import model.PitchFrame;
+import model.Song;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,25 +14,31 @@ import java.io.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// reads all song-related files from disk
-// songs/<folder>/ with backing.wav, vocals.wav, lyrics.lrc, pitches.csv
 public class SongLoader {
     public ArrayList<LyricLine> lyrics = new ArrayList<LyricLine>();
     public ArrayList<PitchFrame> pitches = new ArrayList<PitchFrame>();
 
-    // scan the songs/ directory, return String list of songs
-    public ArrayList<String> loadSongs() {
-        ArrayList<String> songs = new ArrayList<>();
+    public ArrayList<Song> loadSongs() {
+        ArrayList<Song> songs = new ArrayList<>();
         Path path = Paths.get("songs");
         try {
             ArrayList<Path> songPaths = Files.list(path)
                     .filter(Files::isDirectory)
                     .collect(Collectors.toCollection(ArrayList::new));
             for (Path p : songPaths) {
-                songs.add(p.getFileName().toString());
-                //System.out.println(p.getFileName().toString());
-            }
+                String folderName = p.getFileName().toString();
+                String title = folderName;
+                String artist = "";
 
+                Properties props = new Properties();
+                try (InputStream is = new FileInputStream(p.resolve("info.properties").toFile())) {
+                    props.load(is);
+                    title  = props.getProperty("title",  folderName);
+                    artist = props.getProperty("artist", "");
+                } catch (IOException ignored) { }
+
+                songs.add(new Song(title, artist, folderName));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -51,7 +58,6 @@ public class SongLoader {
                     long seconds = Long.parseLong(matcher.group(2));
                     long centiseconds = Long.parseLong(matcher.group(3));
                     String text = matcher.group(4).trim();
-                    //System.out.println(text);
                     long startMs = minutes * 60000 + seconds * 1000 + centiseconds * 10;
                     if (lyrics != null) {
                         lyrics.add(new LyricLine(text, startMs));

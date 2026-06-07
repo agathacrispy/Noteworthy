@@ -5,31 +5,34 @@ import model.PitchFrame;
 import java.util.ArrayList;
 import java.util.List;
 
-// processes raw pcm bytes from AudioInputManager.getBucket() into a list of PitchFrames
 public class PitchDetector {
 
-    public static final int SILENCE = -1; // when a frame is too quiet to contain a pitched note
+    public static final int SILENCE = -1;
 
-    private static final int SAMPLE_RATE = 44100;
-    private static final int HOP_MS = 23;
-    private static final int HOP_SAMPLES = (int) (SAMPLE_RATE * HOP_MS / 1000.0);
-    private static final float SILENCE_THRESHOLD = 0.01f;   // rms below this = silence
-    private static final int MIN_FREQ = 65; // ~c2
-    private static final int MAX_FREQ = 1047; // ~c6
+    public static final int SAMPLE_RATE = 44100;
+    public static final int HOP_MS = 23;
+    public static final int HOP_SAMPLES = (int) (SAMPLE_RATE * HOP_MS / 1000.0);
+    public static final int HOP_BYTES = HOP_SAMPLES * 2;
 
-    public static List<PitchFrame> processRecording(byte[] pcm) { // raw pcm bytes from AIM to pitch frames
+    private static final float SILENCE_THRESHOLD = 0.01f;
+    private static final int MIN_FREQ = 65;
+    private static final int MAX_FREQ = 1047;
+
+    public static List<PitchFrame> processRecording(byte[] pcm) {
         float[] samples = pcmToFloat(pcm);
         List<PitchFrame> frames = new ArrayList<>();
 
         for (int i = 0; i + HOP_SAMPLES < samples.length; i += HOP_SAMPLES) {
             float[] frame = new float[HOP_SAMPLES];
             System.arraycopy(samples, i, frame, 0, HOP_SAMPLES);
-
             long timestampMs = Math.round((double) i / SAMPLE_RATE * 1000);
-            int midi = detectMidi(frame);
-            frames.add(new PitchFrame(timestampMs, midi));
+            frames.add(new PitchFrame(timestampMs, detectMidi(frame)));
         }
         return frames;
+    }
+
+    public static int detectSingleFrame(byte[] pcmChunk) {
+        return detectMidi(pcmToFloat(pcmChunk));
     }
 
     private static float[] pcmToFloat(byte[] pcm) {
@@ -41,9 +44,7 @@ public class PitchDetector {
         return samples;
     }
 
-    // returns midi note number for the frame
     private static int detectMidi(float[] frame) {
-        // silence check
         float rms = 0;
         for (float s : frame) rms += s * s;
         rms = (float) Math.sqrt(rms / frame.length);
