@@ -16,9 +16,9 @@ public class ResultsPanel extends JPanel {
         JButton backBtn = new JButton("Back to Menu");
         backBtn.addActionListener(e -> onBackToMenu.run());
 
-        JPanel bottom = new JPanel();
-        bottom.add(backBtn);
-        add(bottom, BorderLayout.SOUTH);
+        JPanel top = new JPanel();
+        top.add(backBtn);
+        add(top, BorderLayout.NORTH);
     }
 
     @Override
