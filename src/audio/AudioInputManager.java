@@ -10,7 +10,7 @@ import java.io.ByteArrayOutputStream;
 
 public class AudioInputManager {
     static TargetDataLine line;
-    private boolean isRecording = false;
+    private volatile boolean isRecording = false;
     private boolean playReady = false;
     ByteArrayOutputStream bucket = new ByteArrayOutputStream();
 
