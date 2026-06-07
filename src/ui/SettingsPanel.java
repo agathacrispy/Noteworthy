@@ -85,6 +85,7 @@ public class SettingsPanel extends JPanel {
 
         recordButton.addActionListener(e -> {
             if (!AIM.isRecording()) {
+                loadProperties();
                 AIM.startRecording(properties.getProperty("micDevice"));
                 recordButton.setText("Stop");
             } else {
