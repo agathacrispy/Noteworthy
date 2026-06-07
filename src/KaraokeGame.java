@@ -2,10 +2,9 @@ import ui.GameplayPanel;
 import ui.MainMenuPanel;
 import ui.SettingsPanel;
 import ui.TestPanel;
+import model.Song;
 
-import java.util.ArrayList;
 import javax.swing.*;
-import javax.swing.SwingUtilities;
 
 public class KaraokeGame {
 
@@ -13,18 +12,25 @@ public class KaraokeGame {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Noteworthy");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(500, 500);
+            frame.setSize(1200, 800);
 
-            //frame.add(new MainMenuPanel(song -> {
-            //    frame.getContentPane().removeAll();
-            //    frame.getContentPane().add(new GameplayPanel(song));
-            //    frame.revalidate();
-            //    frame.repaint();
-            //}));
+            showMainMenu(frame);
 
-            frame.add(new SettingsPanel());
-            //frame.add(new TestPanel());
             frame.setVisible(true);
         });
+    }
+
+    private static void showMainMenu(JFrame frame) {
+        frame.getContentPane().removeAll();
+        frame.getContentPane().add(new MainMenuPanel(song -> showGameplay(frame, song)));
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    private static void showGameplay(JFrame frame, Song song) {
+        frame.getContentPane().removeAll();
+        frame.getContentPane().add(new GameplayPanel(song));
+        frame.revalidate();
+        frame.repaint();
     }
 }

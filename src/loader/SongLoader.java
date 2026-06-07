@@ -2,6 +2,7 @@ package loader;
 
 import model.LyricLine;
 import model.PitchFrame;
+import model.Song;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,24 +12,30 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.io.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class SongLoader {
     public ArrayList<LyricLine> lyrics = new ArrayList<LyricLine>();
     public ArrayList<PitchFrame> pitches = new ArrayList<PitchFrame>();
 
-    public ArrayList<String> loadSongs() {
-        ArrayList<String> songs = new ArrayList<>();
+    public ArrayList<Song> loadSongs() {
+        ArrayList<Song> songs = new ArrayList<>();
         Path path = Paths.get("songs");
         try {
             ArrayList<Path> songPaths = Files.list(path)
                     .filter(Files::isDirectory)
+                    .sorted()
                     .collect(Collectors.toCollection(ArrayList::new));
             for (Path p : songPaths) {
-                songs.add(p.getFileName().toString());
-                //System.out.println(p.getFileName().toString());
+                String folderName = p.getFileName().toString();
+                File infoFile = new File("songs/" + folderName + "/info.properties");
+                Properties props = new Properties();
+                try (FileInputStream fis = new FileInputStream(infoFile)) {
+                    props.load(fis);
+                }
+                String title  = props.getProperty("title",  folderName);
+                String artist = props.getProperty("artist", "Unknown");
+                songs.add(new Song(title, artist, folderName));
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
