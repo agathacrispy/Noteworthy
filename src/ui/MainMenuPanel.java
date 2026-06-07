@@ -1,7 +1,6 @@
 package ui;
 
 import loader.SongLoader;
-import model.Song;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,15 +10,20 @@ import java.util.function.Consumer;
 public class MainMenuPanel extends JPanel {
 
     private final SongLoader sl = new SongLoader();
-    private final ArrayList<Song> songs;
+    private final ArrayList<String> songs;
 
-    public MainMenuPanel(Consumer<Song> onSongSelected) {
+    public MainMenuPanel(Consumer<String> onSongSelected, Runnable onSettings) {
         songs = sl.loadSongs();
-        for (Song song : songs) {
-            JButton btn = new JButton(song.toString()); // "Title - Artist"
-            btn.addActionListener(e -> onSongSelected.accept(song));
+
+        for (String s : songs) {
+            JButton btn = new JButton(s);
+            btn.addActionListener(e -> onSongSelected.accept(s));
             add(btn);
         }
+
+        JButton settingsBtn = new JButton("Settings");
+        settingsBtn.addActionListener(e -> onSettings.run());
+        add(settingsBtn);
     }
 
     @Override
