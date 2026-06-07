@@ -3,7 +3,7 @@ package model;
 
 public class PitchFrame {
     private long ms;
-    private int pitch;  // midi note number, or -1 for silence
+    private int pitch;
 
     public PitchFrame(long ms, int pitch) {
         this.ms = ms;

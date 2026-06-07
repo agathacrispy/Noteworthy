@@ -4,10 +4,6 @@ import javax.sound.sampled.*;
 import javax.swing.*;
 import java.io.ByteArrayOutputStream;
 
-// captures raw pcm audio from the selected mic into bucket
-// bucket is passed to PitchDetector after recording stops for scoring
-// playBack() replays the captured audio for testing purposes
-
 public class AudioInputManager {
     static TargetDataLine line;
     private volatile boolean isRecording = false;
@@ -21,7 +17,7 @@ public class AudioInputManager {
         if (!AudioSystem.isLineSupported(info)) {
             System.err.println("Line not supported");
         }
-        try { // looks for a specific device, else falls back onto default
+        try {
             Mixer.Info selectedMixerInfo = null;
             for (Mixer.Info mixerInfo : AudioSystem.getMixerInfo()) {
                 if (mixerInfo.getName().equals(selectedDevice)) {
@@ -45,7 +41,6 @@ public class AudioInputManager {
 
             isRecording = true;
 
-            // capture loop must run on a separate thread?? something like that
             Thread captureThread = new Thread(() -> {
                 byte[] buffer = new byte[8192];
                 while (isRecording) {
@@ -62,7 +57,6 @@ public class AudioInputManager {
         }
     }
 
-    // used in TestPanel and SettingsPanel for mic testing
     public void playBack() {
         byte[] audioData = bucket.toByteArray();
 
@@ -93,7 +87,6 @@ public class AudioInputManager {
         playReady = true;
     }
 
-    // returns the raw pcm bytes for pitch processing
     public byte[] getBucket() {
         return bucket.toByteArray();
     }

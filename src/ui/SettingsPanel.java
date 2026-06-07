@@ -29,7 +29,7 @@ public class SettingsPanel extends JPanel {
     String filePath = "settings.properties";
     Properties properties = new Properties();
 
-    public SettingsPanel(Runnable onBack){
+    public SettingsPanel(Runnable onBack) {
 
         loadProperties();
 
@@ -57,7 +57,7 @@ public class SettingsPanel extends JPanel {
         topPanel.add(titleLabel, BorderLayout.CENTER);
         add(topPanel, BorderLayout.NORTH);
 
-        JPanel volumePanel = new JPanel(new BorderLayout(5,5));
+        JPanel volumePanel = new JPanel(new BorderLayout(5, 5));
         JLabel volumeLabel = new JLabel("Output Volume", SwingConstants.CENTER);
         volumeLabel.setFont(new Font("Arial", Font.BOLD, 15));
         volumeSlider = new JSlider(0, 100, Integer.parseInt(properties.getProperty("volume")));
@@ -66,7 +66,7 @@ public class SettingsPanel extends JPanel {
         volumePanel.add(volumeSlider, BorderLayout.CENTER);
         add(volumePanel, BorderLayout.WEST);
 
-        JPanel micPanel = new JPanel(new BorderLayout(5,5));
+        JPanel micPanel = new JPanel(new BorderLayout(5, 5));
         JLabel micLabel = new JLabel("Mic Sensitivity", SwingConstants.CENTER);
         micLabel.setFont(new Font("Arial", Font.BOLD, 15));
         micSensSlider = new JSlider(0, 100, Integer.parseInt(properties.getProperty("micSensitivity")));
@@ -75,7 +75,7 @@ public class SettingsPanel extends JPanel {
         micPanel.add(micSensSlider, BorderLayout.CENTER);
         add(micPanel, BorderLayout.EAST);
 
-        JPanel inputPanel = new JPanel(new BorderLayout(5,5));
+        JPanel inputPanel = new JPanel(new BorderLayout(5, 5));
         JLabel inputLabel = new JLabel("Mic Input", SwingConstants.CENTER);
         inputPanel.setFont(new Font("Arial", Font.BOLD, 15));
         dropdown = new JComboBox<>(inputs.toArray(new String[0]));
@@ -83,8 +83,6 @@ public class SettingsPanel extends JPanel {
         inputPanel.add(inputLabel, BorderLayout.NORTH);
         inputPanel.add(dropdown, BorderLayout.CENTER);
         add(inputPanel, BorderLayout.SOUTH);
-
-        //start of test pannel code
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
 
@@ -110,8 +108,6 @@ public class SettingsPanel extends JPanel {
 
         add(buttonPanel, BorderLayout.CENTER);
 
-        //end of test pannel code
-
         volumeSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -134,13 +130,14 @@ public class SettingsPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Object selected = dropdown.getSelectedItem();
-                if (selected != null){
+                if (selected != null) {
                     sm.changeInput(selected.toString());
                 }
             }
         });
 
     }
+
     private void loadProperties() {
         try (InputStream input = new FileInputStream(filePath)) {
             properties.load(input);

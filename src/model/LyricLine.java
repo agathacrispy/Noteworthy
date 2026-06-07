@@ -2,7 +2,7 @@ package model;
 
 public class LyricLine {
     private String text;
-    private long startMs;   // time in ms when this line begins
+    private long startMs;
 
     public LyricLine(String text, long startMs) {
         this.text = text;

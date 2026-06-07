@@ -44,12 +44,10 @@ public class ResultsPanel extends JPanel {
             return;
         }
 
-        // grade display
         g2d.setFont(new Font("Arial", Font.BOLD, 160));
         g2d.setColor(Color.BLACK);
         g2d.drawString(result.getGrade(), 80, cy + 60);
 
-        // pitch comparison graph
         drawPitchGraph(g2d);
     }
 
@@ -73,9 +71,7 @@ public class ResultsPanel extends JPanel {
         drawPitchLine(g2d, result.getUserPitches(), gx, gy, gw, gh, midiMin, midiMax, new Color(220, 60, 60, 180));
     }
 
-    private void drawPitchLine(Graphics2D g2d, java.util.List<model.PitchFrame> frames,
-                               int gx, int gy, int gw, int gh,
-                               int midiMin, int midiMax, Color color) {
+    private void drawPitchLine(Graphics2D g2d, java.util.List<model.PitchFrame> frames, int gx, int gy, int gw, int gh, int midiMin, int midiMax, Color color) {
         if (frames == null || frames.isEmpty()) return;
         g2d.setColor(color);
         g2d.setStroke(new BasicStroke(2));

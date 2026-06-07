@@ -7,8 +7,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 
-// reads and writes settings.properties
-
 public class SettingsManager {
 
     String filePath = "settings.properties";

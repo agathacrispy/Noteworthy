@@ -1,11 +1,19 @@
 package ui;
 
 import audio.AudioInputManager;
+import audio.PitchDetector;
 import engine.LyricsSync;
 import engine.PlaybackClock;
+import engine.PitchSync;
+import engine.ScoringEngine;
 import loader.SongLoader;
 import model.LyricLine;
 import model.PerformanceResult;
+import model.PitchFrame;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -28,26 +36,34 @@ public class GameplayPanel extends JPanel {
     private final AudioInputManager AIM = new AudioInputManager();
     private final Consumer<PerformanceResult> onFinished;
 
+    private int bucketOffset = 0;
+    private final List<Double> runningScores = new ArrayList<>();
+    private final List<PitchFrame> liveUserPitches = new ArrayList<>();
+    private String liveGrade = "-";
+    private int currentUserMidi = -1;
+    private int currentSongMidi = -1;
+
     String filePath = "settings.properties";
     Properties properties = new Properties();
 
     public GameplayPanel(String song, Consumer<PerformanceResult> onFinished) {
         this.onFinished = onFinished;
 
-        // temp: skip button ends the song early and jumps to results
-        JButton skipBtn = new JButton("Skip to Results (temp)");
+        JButton skipBtn = new JButton("Skip to Results (TEMP)");
         skipBtn.addActionListener(e -> onSongFinished());
         add(skipBtn);
 
         loadProperties();
         sl.loadLyrics(song);
         sl.loadPitches(song);
-        clock.start();
+
         timer = new Timer(50, e -> {
             long elapsed = clock.elapsedMs();
             currentLine = LyricsSync.getCurrentLine(sl.lyrics, elapsed);
+            processLivePitch(elapsed);
             repaint();
         });
+
         loadAudio(song);
         clock.start();
         timer.start();
@@ -56,11 +72,45 @@ public class GameplayPanel extends JPanel {
         AIM.startRecording(properties.getProperty("micDevice"));
     }
 
+    private void processLivePitch(long elapsed) {
+        byte[] fullBucket = AIM.getBucket();
+
+        while (bucketOffset + PitchDetector.HOP_BYTES <= fullBucket.length) {
+            byte[] chunk = Arrays.copyOfRange(fullBucket, bucketOffset, bucketOffset + PitchDetector.HOP_BYTES);
+            int userMidi = PitchDetector.detectSingleFrame(chunk);
+
+            long chunkMs = Math.round((double) bucketOffset / 2 / PitchDetector.SAMPLE_RATE * 1000);
+            liveUserPitches.add(new PitchFrame(chunkMs, userMidi));
+
+            PitchFrame expected = PitchSync.getCurrentPitch(sl.pitches, chunkMs);
+            int songMidi = (expected != null) ? expected.getPitch() : -1;
+
+            currentUserMidi = userMidi;
+            currentSongMidi = songMidi;
+
+            if (songMidi != -1) {
+                if (userMidi == -1) {
+                    runningScores.add(0.0);
+                } else {
+                    int diff = Math.abs(userMidi - songMidi);
+                    runningScores.add(100.0 * Math.exp(-ScoringEngine.getK() * diff * diff));
+                }
+            }
+
+            bucketOffset += PitchDetector.HOP_BYTES;
+        }
+
+        if (!runningScores.isEmpty()) {
+            double sum = 0;
+            for (double s : runningScores) sum += s;
+            liveGrade = ScoringEngine.computeGrade(sum / runningScores.size());
+        }
+    }
+
     private void loadAudio(String song) {
         backing = loadClip("songs/" + song + "/backing.wav");
-        vocals  = loadClip("songs/" + song + "/vocals.wav");
+        vocals = loadClip("songs/" + song + "/vocals.wav");
         if (backing != null) {
-            // triggers onSongFinished when the backing track naturally ends
             backing.addLineListener(event -> {
                 if (event.getType() == LineEvent.Type.STOP) {
                     SwingUtilities.invokeLater(this::onSongFinished);
@@ -75,7 +125,16 @@ public class GameplayPanel extends JPanel {
         AIM.stopRecording();
         if (vocals != null) vocals.stop();
         if (backing != null) backing.stop();
-        onFinished.accept(null);
+
+        double similarity = 0;
+        if (!runningScores.isEmpty()) {
+            double sum = 0;
+            for (double s : runningScores) sum += s;
+            similarity = sum / runningScores.size();
+        }
+        String grade = ScoringEngine.computeGrade(similarity);
+        PerformanceResult result = new PerformanceResult(runningScores, similarity, grade, liveUserPitches, sl.pitches);
+        onFinished.accept(result);
     }
 
     private Clip loadClip(String path) {
@@ -104,15 +163,27 @@ public class GameplayPanel extends JPanel {
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
         int centerX = getWidth() / 2;
         int centerY = getHeight() / 2;
 
         if (currentLine != null) {
             g2d.setColor(Color.BLACK);
-            g2d.setFont(new Font("Arial", Font.BOLD, 28));
+            g2d.setFont(new Font("Segoe UI", Font.BOLD, 28));
             FontMetrics fm = g2d.getFontMetrics();
             int x = centerX - fm.stringWidth(currentLine.getLine()) / 2;
             g2d.drawString(currentLine.getLine(), x, centerY);
         }
+
+        g2d.setFont(new Font("Segoe UI", Font.BOLD, 48));
+        FontMetrics fmGrade = g2d.getFontMetrics();
+        g2d.setColor(Color.BLACK);
+        g2d.drawString(liveGrade, getWidth() - fmGrade.stringWidth(liveGrade) - 20, 60);
+
+        g2d.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        g2d.setColor(Color.BLACK);
+        g2d.drawString(String.valueOf(currentSongMidi), 20, 30);
+        g2d.drawString(String.valueOf(currentUserMidi), 20, 52);
     }
 }
