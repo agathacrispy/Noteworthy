@@ -13,10 +13,13 @@ import java.io.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+// reads all song-related files from disk
+// songs/<folder>/ with backing.wav, vocals.wav, lyrics.lrc, pitches.csv
 public class SongLoader {
     public ArrayList<LyricLine> lyrics = new ArrayList<LyricLine>();
     public ArrayList<PitchFrame> pitches = new ArrayList<PitchFrame>();
 
+    // scan the songs/ directory, return String list of songs
     public ArrayList<String> loadSongs() {
         ArrayList<String> songs = new ArrayList<>();
         Path path = Paths.get("songs");
@@ -36,13 +39,11 @@ public class SongLoader {
     }
 
     public void loadLyrics(String song) {
-        try
-        {
+        try {
             FileReader fr = new FileReader("songs/" + song + "/lyrics.lrc");
             BufferedReader br = new BufferedReader(fr);
             String line;
-            while ((line = br.readLine()) != null)
-            {
+            while ((line = br.readLine()) != null) {
                 Pattern pattern = Pattern.compile("\\[(\\d{2}):(\\d{2})\\.(\\d{2})\\](.*)");
                 Matcher matcher = pattern.matcher(line);
                 if (matcher.matches()) {
@@ -52,13 +53,13 @@ public class SongLoader {
                     String text = matcher.group(4).trim();
                     //System.out.println(text);
                     long startMs = minutes * 60000 + seconds * 1000 + centiseconds * 10;
-                    if (lyrics != null) { lyrics.add(new LyricLine(text, startMs)); }
+                    if (lyrics != null) {
+                        lyrics.add(new LyricLine(text, startMs));
+                    }
                 }
             }
             br.close();
-        }
-        catch(IOException e)
-        {
+        } catch (IOException e) {
             System.out.println("can't read");
         }
     }

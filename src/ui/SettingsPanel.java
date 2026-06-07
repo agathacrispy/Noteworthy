@@ -29,7 +29,7 @@ public class SettingsPanel extends JPanel {
     String filePath = "settings.properties";
     Properties properties = new Properties();
 
-    public SettingsPanel(){
+    public SettingsPanel(Runnable onBack){
 
         loadProperties();
 
@@ -48,9 +48,14 @@ public class SettingsPanel extends JPanel {
 
         setLayout(new BorderLayout(20, 20));
 
+        JPanel topPanel = new JPanel(new BorderLayout());
         JLabel titleLabel = new JLabel("Settings", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
-        add(titleLabel, BorderLayout.NORTH);
+        JButton backBtn = new JButton("Back");
+        backBtn.addActionListener(e -> onBack.run());
+        topPanel.add(backBtn, BorderLayout.WEST);
+        topPanel.add(titleLabel, BorderLayout.CENTER);
+        add(topPanel, BorderLayout.NORTH);
 
         JPanel volumePanel = new JPanel(new BorderLayout(5,5));
         JLabel volumeLabel = new JLabel("Output Volume", SwingConstants.CENTER);
@@ -100,11 +105,9 @@ public class SettingsPanel extends JPanel {
             }
         });
 
-// Add the buttons to the sub-panel
         buttonPanel.add(recordButton);
         buttonPanel.add(playButton);
 
-// Add the sub-panel to the CENTER of your main layout
         add(buttonPanel, BorderLayout.CENTER);
 
         //end of test pannel code
