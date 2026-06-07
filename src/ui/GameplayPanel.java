@@ -5,6 +5,7 @@ import engine.LyricsSync;
 import engine.PlaybackClock;
 import loader.SongLoader;
 import model.LyricLine;
+import model.PerformanceResult;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -14,7 +15,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.function.Consumer;
 
+// handles gameplay: audio playback, lyric sync, and mic recording
+// calls onFinished with a PerformanceResult when the backing track ends
+// scoring is not yet implemented - result will be null until ScoringEngine is wired in
 public class GameplayPanel extends JPanel {
 
     private LyricLine currentLine;
@@ -24,15 +29,22 @@ public class GameplayPanel extends JPanel {
     private Clip backing;
     private Clip vocals;
     private final AudioInputManager AIM = new AudioInputManager();
+    private final Consumer<PerformanceResult> onFinished;
 
     String filePath = "settings.properties";
     Properties properties = new Properties();
 
-    public GameplayPanel(String song) {
+    public GameplayPanel(String song, Consumer<PerformanceResult> onFinished) {
+        this.onFinished = onFinished;
+
+        // temp: skip button ends the song early and jumps to results
+        JButton skipBtn = new JButton("Skip to Results (temp)");
+        skipBtn.addActionListener(e -> onSongFinished());
+        add(skipBtn);
 
         loadProperties();
-
         sl.loadLyrics(song);
+        sl.loadPitches(song);   // loaded for future scoring use
         clock.start();
         timer = new Timer(50, e -> {
             long elapsed = clock.elapsedMs();
@@ -51,6 +63,7 @@ public class GameplayPanel extends JPanel {
         backing = loadClip("songs/" + song + "/backing.wav");
         vocals  = loadClip("songs/" + song + "/vocals.wav");
         if (backing != null) {
+            // triggers onSongFinished when the backing track naturally ends
             backing.addLineListener(event -> {
                 if (event.getType() == LineEvent.Type.STOP) {
                     SwingUtilities.invokeLater(this::onSongFinished);
@@ -64,6 +77,9 @@ public class GameplayPanel extends JPanel {
         clock.reset();
         AIM.stopRecording();
         if (vocals != null) vocals.stop();
+        // scoring will be computed here once ScoringEngine and PitchDetector are implemented
+        // for now, passes null result to the results screen
+        onFinished.accept(null);
     }
 
     private Clip loadClip(String path) {
@@ -73,8 +89,18 @@ public class GameplayPanel extends JPanel {
             clip.open(ais);
             return clip;
         } catch (Exception e) {
-            System.out.println("cant load audio");
+            System.out.println("cant load audio: " + path);
             return null;
+        }
+    }
+
+    private void loadProperties() {
+        try (InputStream input = new FileInputStream(filePath)) {
+            properties.load(input);
+        } catch (IOException ex) {
+            System.out.println("err loading settings.properties, using defaults");
+            properties.setProperty("volume", "50");
+            properties.setProperty("micSensitivity", "50");
         }
     }
 
@@ -91,16 +117,6 @@ public class GameplayPanel extends JPanel {
             FontMetrics fm = g2d.getFontMetrics();
             int x = centerX - fm.stringWidth(currentLine.getLine()) / 2;
             g2d.drawString(currentLine.getLine(), x, centerY);
-        }
-    }
-
-    private void loadProperties() {
-        try (InputStream input = new FileInputStream(filePath)) {
-            properties.load(input);
-        } catch (IOException ex) {
-            System.out.println("Err loading settings.properties");
-            properties.setProperty("volume", "50");
-            properties.setProperty("micSensitivity", "50");
         }
     }
 }

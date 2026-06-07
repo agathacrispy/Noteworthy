@@ -1,30 +1,50 @@
+import model.PerformanceResult;
 import ui.GameplayPanel;
 import ui.MainMenuPanel;
+import ui.ResultsPanel;
 import ui.SettingsPanel;
-import ui.TestPanel;
 
-import java.util.ArrayList;
 import javax.swing.*;
-import javax.swing.SwingUtilities;
 
 public class KaraokeGame {
 
+    private static JFrame frame;
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Noteworthy");
+            frame = new JFrame("Noteworthy");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(500, 500);
-
-            //frame.add(new MainMenuPanel(song -> {
-            //    frame.getContentPane().removeAll();
-            //    frame.getContentPane().add(new GameplayPanel(song));
-            //    frame.revalidate();
-            //    frame.repaint();
-            //}));
-
-            frame.add(new SettingsPanel());
-            //frame.add(new TestPanel());
+            frame.setSize(1200, 800);
+            showMainMenu();
             frame.setVisible(true);
         });
+    }
+
+    // AWLAYS USE THIS: replace the current panel in the frame
+    private static void swap(JPanel panel) {
+        frame.getContentPane().removeAll();
+        frame.getContentPane().add(panel);
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    public static void showMainMenu() {
+        swap(new MainMenuPanel(
+                song -> showGameplay(song),
+                () -> showSettings()
+        ));
+    }
+
+    public static void showSettings() {
+        swap(new SettingsPanel(() -> showMainMenu()));
+    }
+
+    public static void showGameplay(String song) {
+        // call when backing track ends
+        swap(new GameplayPanel(song, result -> showResults(result)));
+    }
+
+    public static void showResults(PerformanceResult result) {
+        swap(new ResultsPanel(result, () -> showMainMenu()));
     }
 }

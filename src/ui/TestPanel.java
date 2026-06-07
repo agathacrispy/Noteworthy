@@ -9,9 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-// class to confirm johnnys audio recording and playback works
-// in GameplayPanel, AIM.startRecording() and AIM.stopRecording() are used - check that class
-
 public class TestPanel extends JPanel {
 
     private final AudioInputManager AIM = new AudioInputManager();
@@ -22,8 +19,6 @@ public class TestPanel extends JPanel {
     Properties properties = new Properties();
 
     public TestPanel() {
-        //setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
-
         loadProperties();
 
         recordButton.addActionListener(e -> {
@@ -44,14 +39,13 @@ public class TestPanel extends JPanel {
 
         add(recordButton);
         add(playButton);
-
     }
 
     private void loadProperties() {
         try (InputStream input = new FileInputStream(filePath)) {
             properties.load(input);
         } catch (IOException ex) {
-            System.out.println("Err loading settings.properties");
+            System.out.println("err loading settings.properties, using defaults");
             properties.setProperty("volume", "50");
             properties.setProperty("micSensitivity", "50");
         }
