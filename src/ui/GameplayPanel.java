@@ -74,6 +74,7 @@ public class GameplayPanel extends JPanel {
         clock.reset();
         AIM.stopRecording();
         if (vocals != null) vocals.stop();
+        if (backing != null) backing.stop();
         onFinished.accept(null);
     }
 
