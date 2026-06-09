@@ -36,9 +36,13 @@ public abstract class BackgroundPanel extends JPanel {
                 if (scaledWidths[i] == 0) continue;
                 offsets[i] = (offsets[i] + SPEEDS[i]) % scaledWidths[i];
             }
+            tick();
             repaint();
         });
     }
+
+    /** Called once per frame tick, before repaint. Override in subclasses for per-frame animation. */
+    protected void tick() {}
 
     @Override
     public void addNotify() {

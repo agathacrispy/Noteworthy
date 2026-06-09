@@ -31,17 +31,17 @@ public class TitlePanel extends BackgroundPanel {
             minecraftFont = new Font("Segoe UI", Font.PLAIN, 16);
         }
 
-        new Timer(16, e -> {
-            hoverAngle += HOVER_SPEED;
-            repaint();
-        }).start();
-
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 onContinue.run();
             }
         });
+    }
+
+    @Override
+    protected void tick() {
+        hoverAngle += HOVER_SPEED;
     }
 
     @Override
