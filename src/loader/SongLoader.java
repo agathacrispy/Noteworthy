@@ -37,16 +37,18 @@ public class SongLoader {
                 Properties props = new Properties();
                 try (InputStream is = new FileInputStream(p.resolve("info.properties").toFile())) {
                     props.load(is);
-                    title    = props.getProperty("title",    folderName);
-                    artist   = props.getProperty("artist",   "");
-                    genre    = props.getProperty("genre",    "");
+                    title = props.getProperty("title", folderName);
+                    artist = props.getProperty("artist", "");
+                    genre = props.getProperty("genre", "");
                     duration = props.getProperty("duration", "");
-                } catch (IOException ignored) { }
+                } catch (IOException ignored) {
+                }
 
                 BufferedImage thumbnail = null;
                 try {
-                    thumbnail = ImageIO.read(p.resolve("thumbnail.png").toFile());
-                } catch (IOException ignored) { }
+                    thumbnail = ImageIO.read(p.resolve("thumbnail.jpg").toFile());
+                } catch (IOException ignored) {
+                }
 
                 songs.add(new Song(title, artist, folderName, genre, duration, thumbnail));
             }

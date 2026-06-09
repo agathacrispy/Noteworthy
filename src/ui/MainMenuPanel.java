@@ -32,7 +32,7 @@ public class MainMenuPanel extends BackgroundPanel {
 
     private BufferedImage start;
     private BufferedImage startPressed;
-    private Font minecraftFont;
+    private Font songFont, artistFont, menuFont;
     private float hoverAngle = 0f;
     private boolean startHovered = false;
     private boolean showSelectMsg = false;
@@ -54,10 +54,23 @@ public class MainMenuPanel extends BackgroundPanel {
         } catch (IOException e) {
             System.out.println("cant load startPressed");
         }
+
         try {
-            minecraftFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/Minecraft.ttf")).deriveFont(14f);
+            songFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/Minecraft.ttf")).deriveFont(14f);
         } catch (FontFormatException | IOException e) {
-            minecraftFont = new Font("Segoe UI", Font.PLAIN, 14);
+            songFont = new Font("Segoe UI", Font.PLAIN, 14);
+        }
+
+        try {
+            artistFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/Minecraft.ttf")).deriveFont(12f);
+        } catch (FontFormatException | IOException e) {
+            artistFont = new Font("Segoe UI", Font.PLAIN, 14);
+        }
+
+        try {
+            menuFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/Minecraft.ttf")).deriveFont(20f);
+        } catch (FontFormatException | IOException e) {
+            menuFont = new Font("Segoe UI", Font.PLAIN, 14);
         }
 
         songs = sl.loadSongs();
@@ -71,7 +84,7 @@ public class MainMenuPanel extends BackgroundPanel {
         settingsBtn.setContentAreaFilled(false);
         settingsBtn.setBorderPainted(false);
         settingsBtn.setForeground(Color.WHITE);
-        settingsBtn.setFont(minecraftFont);
+        settingsBtn.setFont(menuFont);
         settingsBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         settingsBtn.addActionListener(e -> onSettings.run());
         topBar.add(settingsBtn, BorderLayout.WEST);
@@ -97,7 +110,7 @@ public class MainMenuPanel extends BackgroundPanel {
                 g2d.drawImage(img, x, y, imgW, imgH, null);
                 if (showSelectMsg) {
                     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2d.setFont(minecraftFont.deriveFont(13f));
+                    g2d.setFont(menuFont.deriveFont(13f));
                     FontMetrics fm = g2d.getFontMetrics();
                     String msg = "please select a song";
                     int mx = (w - fm.stringWidth(msg)) / 2;
@@ -164,20 +177,15 @@ public class MainMenuPanel extends BackgroundPanel {
                 if (displaySong.getThumbnail() != null) {
                     g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
                     g2d.drawImage(displaySong.getThumbnail(), 0, 0, w, tH, null);
-                } else {
-                    g2d.setColor(new Color(0x1c, 0x1a, 0x2e));
-                    g2d.fillRect(0, 0, w, tH);
-                    g2d.setColor(new Color(0x78, 0x58, 0x6f, 100));
+                    g2d.setColor(new Color(0x3a, 0x35, 0x55));
+                    //g2d.setColor(Color.WHITE);
                     g2d.setStroke(new BasicStroke(1));
                     g2d.drawRect(0, 0, w - 1, tH - 1);
-                    g2d.setFont(minecraftFont.deriveFont(11f));
-                    FontMetrics fmp = g2d.getFontMetrics();
-                    String np = "no preview";
-                    g2d.setColor(new Color(0x78, 0x58, 0x6f, 80));
-                    g2d.drawString(np, (w - fmp.stringWidth(np)) / 2, tH / 2 + fmp.getAscent() / 2);
+                } else {
+                    System.out.println("cant load thumbnail");
                 }
 
-                g2d.setFont(minecraftFont.deriveFont(11f));
+                g2d.setFont(menuFont.deriveFont(11f));
                 FontMetrics fm = g2d.getFontMetrics();
                 int tagX = 10, tagY = tH + 12;
                 tagX = drawChips(g2d, displaySong.getGenre(), tagX, tagY, new Color(0xd6, 0x72, 0xcc), fm);
@@ -188,7 +196,6 @@ public class MainMenuPanel extends BackgroundPanel {
         detailsPanel.setPreferredSize(new Dimension(SCROLL_WIDTH, DETAILS_HEIGHT));
         detailsPanel.setVisible(false);
 
-        // ── song list ─────────────────────────────────────────────────
         JPanel songList = new JPanel();
         songList.setLayout(new BoxLayout(songList, BoxLayout.Y_AXIS));
         songList.setOpaque(false);
@@ -274,12 +281,12 @@ public class MainMenuPanel extends BackgroundPanel {
         row.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         JLabel titleLabel = new JLabel(song.getTitle());
-        titleLabel.setFont(minecraftFont);
+        titleLabel.setFont(songFont);
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(5, 14, 2, 0));
 
         JLabel artistLabel = new JLabel(song.getArtist());
-        artistLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        artistLabel.setFont(artistFont);
         artistLabel.setForeground(new Color(0xd6, 0x72, 0xcc));
         artistLabel.setBorder(BorderFactory.createEmptyBorder(0, 14, 5, 0));
 
