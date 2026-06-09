@@ -3,7 +3,6 @@ package ui;
 import audio.AudioInputManager;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
@@ -69,23 +68,13 @@ public class SettingsPanel extends BackgroundPanel {
         UIManager.put("Slider.focus", new Color(0, 0, 0, 0));
 
         setLayout(new BorderLayout(20, 20));
+        setBorder(BorderFactory.createEmptyBorder(30, 30, 60, 30));
 
         JPanel northContainer = new JPanel();
         northContainer.setLayout(new BoxLayout(northContainer, BoxLayout.Y_AXIS));
         northContainer.setOpaque(false);
 
-        Border paddingLeft = BorderFactory.createEmptyBorder(0, 15, 0, 0);
-        Border paddingTop = BorderFactory.createEmptyBorder(15, 0, 0, 0);
-        Border paddingBottom = BorderFactory.createEmptyBorder(0, 0, 15, 0);
-        Border paddingRight = BorderFactory.createEmptyBorder(0, 0, 0, 15);
-
-        JPanel settingsWordPanel = new JPanel(new BorderLayout());
-        settingsWordPanel.setPreferredSize(new Dimension(100, 50));
-        JLabel titleLabel = new JLabel("settings", SwingConstants.CENTER);
-        titleLabel.setForeground(customColor);
-        titleLabel.setFont(minecraftFontLarge);
-        settingsWordPanel.add(titleLabel, BorderLayout.CENTER);
-        settingsWordPanel.setOpaque(false);
+        JPanel settingsWordPanel = getJPanel();
 
         JPanel topPanel = new JPanel(new BorderLayout());
         JButton backBtn = new JButton("Back");
@@ -107,7 +96,13 @@ public class SettingsPanel extends BackgroundPanel {
         volumePanel.add(volumeLabel, BorderLayout.NORTH);
         volumePanel.add(volumeSlider, BorderLayout.CENTER);
         volumePanel.setOpaque(false);
-        add(volumePanel, BorderLayout.WEST);
+
+        JPanel westWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        westWrapper.setPreferredSize(new Dimension(200, 100));
+        westWrapper.setOpaque(false);
+        westWrapper.add(volumePanel);
+
+        add(westWrapper, BorderLayout.WEST);
 
         JPanel micPanel = new JPanel(new BorderLayout(5, 5));
         JLabel micLabel = new JLabel("mic sensitivity", SwingConstants.CENTER);
@@ -118,7 +113,13 @@ public class SettingsPanel extends BackgroundPanel {
         micPanel.add(micLabel, BorderLayout.NORTH);
         micPanel.add(micSensSlider, BorderLayout.CENTER);
         micPanel.setOpaque(false);
-        add(micPanel, BorderLayout.EAST);
+
+        JPanel eastWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        eastWrapper.setPreferredSize(new Dimension(200, 100));
+        eastWrapper.setOpaque(false);
+        eastWrapper.add(micPanel);
+
+        add(eastWrapper, BorderLayout.EAST);
 
         JPanel inputPanel = new JPanel(new BorderLayout(5, 5));
         JLabel inputLabel = new JLabel("mic input", SwingConstants.CENTER);
@@ -126,10 +127,17 @@ public class SettingsPanel extends BackgroundPanel {
         inputLabel.setFont(minecraftFont);
         inputPanel.setFont(minecraftFont);
         dropdown = new JComboBox<>(inputs.toArray(new String[0]));
+        dropdown.setPreferredSize(new Dimension(250, 30));
+
         inputPanel.setOpaque(false);
         inputPanel.add(inputLabel, BorderLayout.NORTH);
         inputPanel.add(dropdown, BorderLayout.CENTER);
-        add(inputPanel, BorderLayout.SOUTH);
+
+        JPanel southWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        southWrapper.setOpaque(false);
+        southWrapper.add(inputPanel);
+
+        add(southWrapper, BorderLayout.SOUTH);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
 
@@ -182,6 +190,21 @@ public class SettingsPanel extends BackgroundPanel {
                 }
             }
         });
+    }
+
+    private JPanel getJPanel() {
+        JPanel settingsWordPanel = new JPanel(new BorderLayout());
+        settingsWordPanel.setPreferredSize(new Dimension(100, 175));
+        JLabel titleLabel = new JLabel("settings", SwingConstants.CENTER);
+        JLabel testLabel = new JLabel("test mic", SwingConstants.CENTER);
+        titleLabel.setForeground(customColor);
+        titleLabel.setFont(minecraftFontLarge);
+        testLabel.setForeground(customColor);
+        testLabel.setFont(minecraftFont);
+        settingsWordPanel.add(titleLabel, BorderLayout.CENTER);
+        settingsWordPanel.add(testLabel, BorderLayout.SOUTH);
+        settingsWordPanel.setOpaque(false);
+        return settingsWordPanel;
     }
 
     private void saveSetting(String key, String value) {
