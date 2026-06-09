@@ -30,20 +30,6 @@ public class ResultsPanel extends BackgroundPanel {
         int cx = getWidth() / 2;
         int cy = getHeight() / 2;
 
-        if (result == null) {
-            g2d.setFont(new Font("Arial", Font.BOLD, 96));
-            g2d.setColor(Color.BLACK);
-            String placeholder = "sussy";
-            FontMetrics fm = g2d.getFontMetrics();
-            g2d.drawString(placeholder, cx - fm.stringWidth(placeholder) / 2, cy);
-
-            g2d.setFont(new Font("Arial", Font.PLAIN, 18));
-            String sub = "diddy";
-            FontMetrics fm2 = g2d.getFontMetrics();
-            g2d.drawString(sub, cx - fm2.stringWidth(sub) / 2, cy + 40);
-            return;
-        }
-
         g2d.setFont(new Font("Arial", Font.BOLD, 160));
         g2d.setColor(Color.BLACK);
         g2d.drawString(result.getGrade(), 80, cy + 60);

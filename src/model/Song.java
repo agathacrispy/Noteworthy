@@ -11,21 +11,40 @@ public class Song {
     private final BufferedImage thumbnail;
 
     public Song(String title, String artist, String folderName, String genre, String duration, BufferedImage thumbnail) {
-        this.title      = title;
-        this.artist     = artist;
+        this.title = title;
+        this.artist = artist;
         this.folderName = folderName;
-        this.genre      = genre;
-        this.duration   = duration;
-        this.thumbnail  = thumbnail;
+        this.genre = genre;
+        this.duration = duration;
+        this.thumbnail = thumbnail;
     }
 
-    public String getTitle()           { return title; }
-    public String getArtist()          { return artist; }
-    public String getFolderName()      { return folderName; }
-    public String getGenre()           { return genre; }
-    public String getDuration()        { return duration; }
-    public BufferedImage getThumbnail(){ return thumbnail; }
+    public String getTitle() {
+        return title;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public String getFolderName() {
+        return folderName;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public BufferedImage getThumbnail() {
+        return thumbnail;
+    }
 
     @Override
-    public String toString() { return title + " - " + artist; }
+    public String toString() {
+        return title + " - " + artist;
+    }
 }
