@@ -4,6 +4,9 @@ import model.LyricLine;
 import model.PitchFrame;
 import model.Song;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,14 +33,22 @@ public class SongLoader {
                 String title = folderName;
                 String artist = "";
 
+                String genre = "", duration = "";
                 Properties props = new Properties();
                 try (InputStream is = new FileInputStream(p.resolve("info.properties").toFile())) {
                     props.load(is);
-                    title  = props.getProperty("title",  folderName);
-                    artist = props.getProperty("artist", "");
+                    title    = props.getProperty("title",    folderName);
+                    artist   = props.getProperty("artist",   "");
+                    genre    = props.getProperty("genre",    "");
+                    duration = props.getProperty("duration", "");
                 } catch (IOException ignored) { }
 
-                songs.add(new Song(title, artist, folderName));
+                BufferedImage thumbnail = null;
+                try {
+                    thumbnail = ImageIO.read(p.resolve("thumbnail.png").toFile());
+                } catch (IOException ignored) { }
+
+                songs.add(new Song(title, artist, folderName, genre, duration, thumbnail));
             }
         } catch (IOException e) {
             e.printStackTrace();

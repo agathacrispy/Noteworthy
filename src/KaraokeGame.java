@@ -6,6 +6,8 @@ import ui.SettingsPanel;
 import ui.TitlePanel;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
 
 public class KaraokeGame {
 
@@ -16,7 +18,15 @@ public class KaraokeGame {
         SwingUtilities.invokeLater(() -> {
             frame = new JFrame("Noteworthy");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(1200, 800);
+            frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+
+            KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
+                if (e.getID() == KeyEvent.KEY_PRESSED && e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    System.exit(0);
+                }
+                return false;
+            });
+
             showTitle();
             frame.setVisible(true);
         });
