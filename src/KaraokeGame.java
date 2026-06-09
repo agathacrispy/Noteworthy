@@ -12,6 +12,7 @@ public class KaraokeGame {
     private static JFrame frame;
 
     public static void main(String[] args) {
+        System.setProperty("sun.java2d.opengl", "true");
         SwingUtilities.invokeLater(() -> {
             frame = new JFrame("Noteworthy");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -33,10 +34,7 @@ public class KaraokeGame {
     }
 
     public static void showMainMenu() {
-        swap(new MainMenuPanel(
-            song -> showGameplay(song),
-            () -> showSettings()
-        ));
+        swap(new MainMenuPanel(song -> showGameplay(song), () -> showSettings()));
     }
 
     public static void showSettings() {
