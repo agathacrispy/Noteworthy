@@ -14,7 +14,7 @@ import java.util.Properties;
 import javax.sound.sampled.*;
 import java.util.ArrayList;
 
-public class SettingsPanel extends JPanel {
+public class SettingsPanel extends BackgroundPanel {
 
     private JSlider volumeSlider = new JSlider();
     private JSlider micSensSlider = new JSlider();

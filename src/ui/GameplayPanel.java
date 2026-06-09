@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.function.Consumer;
 
-public class GameplayPanel extends JPanel {
+public class GameplayPanel extends BackgroundPanel {
 
     private LyricLine currentLine;
     private long clockStart = -1;
