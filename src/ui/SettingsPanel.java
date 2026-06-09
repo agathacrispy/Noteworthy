@@ -3,6 +3,7 @@ package ui;
 import audio.AudioInputManager;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
@@ -20,15 +21,19 @@ public class SettingsPanel extends BackgroundPanel {
     private JSlider micSensSlider = new JSlider();
     private JComboBox<String> dropdown;
 
+    private Font minecraftFont;
+    private Font minecraftFontLarge;
+
     private final AudioInputManager AIM = new AudioInputManager();
     private final JButton recordButton = new JButton("Record");
     private final JButton playButton = new JButton("Play");
+
+    Color customColor = new Color(0xff, 0xff, 0xff, 180);
 
     String filePath = "settings.properties";
     Properties properties = new Properties();
 
     public SettingsPanel(Runnable onBack) {
-
         loadProperties();
 
         Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
@@ -43,37 +48,85 @@ public class SettingsPanel extends BackgroundPanel {
             }
         }
 
+        try {
+            minecraftFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/Minecraft.ttf")).deriveFont(16f);
+        } catch (FontFormatException | IOException e) {
+            minecraftFont = new Font("Segoe UI", Font.PLAIN, 16);
+        }
+
+        try {
+            minecraftFontLarge = Font.createFont(Font.TRUETYPE_FONT, new File("res/Minecraft.ttf")).deriveFont(35f);
+        } catch (FontFormatException | IOException e) {
+            minecraftFontLarge = new Font("Segoe UI", Font.PLAIN, 26);
+        }
+
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        UIManager.put("Slider.focus", new Color(0, 0, 0, 0));
+
         setLayout(new BorderLayout(20, 20));
 
+        JPanel northContainer = new JPanel();
+        northContainer.setLayout(new BoxLayout(northContainer, BoxLayout.Y_AXIS));
+        northContainer.setOpaque(false);
+
+        Border paddingLeft = BorderFactory.createEmptyBorder(0, 15, 0, 0);
+        Border paddingTop = BorderFactory.createEmptyBorder(15, 0, 0, 0);
+        Border paddingBottom = BorderFactory.createEmptyBorder(0, 0, 15, 0);
+        Border paddingRight = BorderFactory.createEmptyBorder(0, 0, 0, 15);
+
+        JPanel settingsWordPanel = new JPanel(new BorderLayout());
+        settingsWordPanel.setPreferredSize(new Dimension(100, 50));
+        JLabel titleLabel = new JLabel("settings", SwingConstants.CENTER);
+        titleLabel.setForeground(customColor);
+        titleLabel.setFont(minecraftFontLarge);
+        settingsWordPanel.add(titleLabel, BorderLayout.CENTER);
+        settingsWordPanel.setOpaque(false);
+
         JPanel topPanel = new JPanel(new BorderLayout());
-        JLabel titleLabel = new JLabel("Settings", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
         JButton backBtn = new JButton("Back");
         backBtn.addActionListener(e -> onBack.run());
         topPanel.add(backBtn, BorderLayout.WEST);
-        topPanel.add(titleLabel, BorderLayout.CENTER);
-        add(topPanel, BorderLayout.NORTH);
+        topPanel.setOpaque(false);
+
+        northContainer.add(topPanel);
+        northContainer.add(settingsWordPanel);
+
+        add(northContainer, BorderLayout.NORTH);
 
         JPanel volumePanel = new JPanel(new BorderLayout(5, 5));
-        JLabel volumeLabel = new JLabel("Output Volume", SwingConstants.CENTER);
-        volumeLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        JLabel volumeLabel = new JLabel("output volume", SwingConstants.CENTER);
+        volumeLabel.setForeground(customColor);
+        volumeLabel.setFont(minecraftFont);
         volumeSlider = new JSlider(0, 100, Integer.parseInt(properties.getProperty("volume")));
+        volumeSlider.setOpaque(false);
         volumePanel.add(volumeLabel, BorderLayout.NORTH);
         volumePanel.add(volumeSlider, BorderLayout.CENTER);
+        volumePanel.setOpaque(false);
         add(volumePanel, BorderLayout.WEST);
 
         JPanel micPanel = new JPanel(new BorderLayout(5, 5));
-        JLabel micLabel = new JLabel("Mic Sensitivity", SwingConstants.CENTER);
-        micLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        JLabel micLabel = new JLabel("mic sensitivity", SwingConstants.CENTER);
+        micLabel.setForeground(customColor);
+        micLabel.setFont(minecraftFont);
         micSensSlider = new JSlider(0, 100, Integer.parseInt(properties.getProperty("micSensitivity")));
+        micSensSlider.setOpaque(false);
         micPanel.add(micLabel, BorderLayout.NORTH);
         micPanel.add(micSensSlider, BorderLayout.CENTER);
+        micPanel.setOpaque(false);
         add(micPanel, BorderLayout.EAST);
 
         JPanel inputPanel = new JPanel(new BorderLayout(5, 5));
-        JLabel inputLabel = new JLabel("Mic Input", SwingConstants.CENTER);
-        inputPanel.setFont(new Font("Arial", Font.BOLD, 15));
+        JLabel inputLabel = new JLabel("mic input", SwingConstants.CENTER);
+        inputLabel.setForeground(customColor);
+        inputLabel.setFont(minecraftFont);
+        inputPanel.setFont(minecraftFont);
         dropdown = new JComboBox<>(inputs.toArray(new String[0]));
+        inputPanel.setOpaque(false);
         inputPanel.add(inputLabel, BorderLayout.NORTH);
         inputPanel.add(dropdown, BorderLayout.CENTER);
         add(inputPanel, BorderLayout.SOUTH);
@@ -99,6 +152,7 @@ public class SettingsPanel extends BackgroundPanel {
 
         buttonPanel.add(recordButton);
         buttonPanel.add(playButton);
+        buttonPanel.setOpaque(false);
         add(buttonPanel, BorderLayout.CENTER);
 
         volumeSlider.addChangeListener(new ChangeListener() {
