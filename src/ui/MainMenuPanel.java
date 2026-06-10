@@ -28,7 +28,8 @@ public class MainMenuPanel extends BackgroundPanel {
 
     private final SongLoader sl = new SongLoader();
     private final ArrayList<Song> songs;
-    private final Map<Song, JPanel> rowMap = new HashMap<>();
+    private final Map<Song, JPanel>  rowMap        = new HashMap<>();
+    private final Map<Song, JLabel> titleLabelMap = new HashMap<>();
 
     private BufferedImage start;
     private BufferedImage startPressed;
@@ -233,8 +234,18 @@ public class MainMenuPanel extends BackgroundPanel {
     private void setSelected(Song song) {
         Song prev = selectedSong;
         selectedSong = (song == selectedSong) ? null : song;
-        if (prev != null && rowMap.containsKey(prev)) rowMap.get(prev).repaint();
-        if (selectedSong != null && rowMap.containsKey(selectedSong)) rowMap.get(selectedSong).repaint();
+
+        if (prev != null) {
+            JLabel lbl = titleLabelMap.get(prev);
+            if (lbl != null) { lbl.setText(prev.getTitle()); lbl.setForeground(Color.WHITE); }
+            if (rowMap.containsKey(prev)) rowMap.get(prev).repaint();
+        }
+        if (selectedSong != null) {
+            JLabel lbl = titleLabelMap.get(selectedSong);
+            if (lbl != null) { lbl.setText(selectedSong.getTitle() + " - selected!"); lbl.setForeground(Color.RED); }
+            if (rowMap.containsKey(selectedSong)) rowMap.get(selectedSong).repaint();
+        }
+
         updateDetails(selectedSong != null ? selectedSong : hoveredSong);
     }
 
@@ -284,6 +295,7 @@ public class MainMenuPanel extends BackgroundPanel {
         titleLabel.setFont(songFont);
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(5, 14, 2, 0));
+        titleLabelMap.put(song, titleLabel);
 
         JLabel artistLabel = new JLabel(song.getArtist());
         artistLabel.setFont(artistFont);
