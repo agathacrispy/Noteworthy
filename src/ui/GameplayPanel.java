@@ -39,11 +39,19 @@ public class GameplayPanel extends BackgroundPanel {
     private String liveGrade = "-";
     private int currentUserMidi = -1;
     private int currentSongMidi = -1;
+    private Font minecraftFont;
+    Color customColor = new Color(0xff, 0xff, 0xff, 180);
 
     String filePath = "settings.properties";
     Properties properties = new Properties();
 
     public GameplayPanel(String song, Consumer<PerformanceResult> onFinished) {
+        try {
+            minecraftFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/Minecraft.ttf")).deriveFont(48f);
+        } catch (FontFormatException | IOException e) {
+            minecraftFont = new Font("Segoe UI", Font.PLAIN, 26);
+        }
+
         this.onFinished = onFinished;
 
         JButton skipBtn = new JButton("Skip to Results (TEMP)");
@@ -185,7 +193,8 @@ public class GameplayPanel extends BackgroundPanel {
 
         if (currentLine != null) {
             g2d.setColor(Color.BLACK);
-            g2d.setFont(new Font("Segoe UI", Font.BOLD, 28));
+            g2d.setFont(minecraftFont);
+            g2d.setColor(customColor);
             FontMetrics fm = g2d.getFontMetrics();
             int x = centerX - fm.stringWidth(currentLine.getLine()) / 2;
             g2d.drawString(currentLine.getLine(), x, centerY);
