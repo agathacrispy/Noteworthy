@@ -25,7 +25,10 @@ public class GameplayPanel extends BackgroundPanel {
 
     private LyricLine currentLine;
     private LyricLine nextLine;
+<<<<<<< Updated upstream
     private LyricLine thirdLine;
+=======
+>>>>>>> Stashed changes
     private long clockStart = -1;
     private final Timer timer;
     private final SongLoader sl = new SongLoader();
@@ -48,7 +51,7 @@ public class GameplayPanel extends BackgroundPanel {
 
     public GameplayPanel(String song, Consumer<PerformanceResult> onFinished) {
         try {
-            minecraftFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/Minecraft.ttf")).deriveFont(48f);
+            minecraftFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/Minecraft.ttf")).deriveFont(40f);
         } catch (FontFormatException | IOException e) {
             minecraftFont = new Font("Segoe UI", Font.PLAIN, 26);
         }
@@ -167,7 +170,7 @@ public class GameplayPanel extends BackgroundPanel {
         }
     }
 
-    private static LyricLine getCurrentLine(List<LyricLine> lyrics, long elapsedMs) {
+    private static LyricLine[] getCurrentLine(List<LyricLine> lyrics, long elapsedMs) {
         LyricLine current = null;
         for (LyricLine line : lyrics) {
             if (line.getStartMs() <= elapsedMs) current = line;
