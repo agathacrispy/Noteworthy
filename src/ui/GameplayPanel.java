@@ -8,23 +8,24 @@ import model.LyricLine;
 import model.PerformanceResult;
 import model.PitchFrame;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Properties;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class GameplayPanel extends BackgroundPanel {
 
     private LyricLine currentLine;
+    private LyricLine nextLine;
+    private LyricLine thirdLine;
     private long clockStart = -1;
     private final Timer timer;
     private final SongLoader sl = new SongLoader();
@@ -65,6 +66,8 @@ public class GameplayPanel extends BackgroundPanel {
         timer = new Timer(50, e -> {
             long elapsed = clockStart == -1 ? 0 : (System.nanoTime() - clockStart) / 1_000_000;
             currentLine = getCurrentLine(sl.lyrics, elapsed);
+            nextLine = getNextLine(sl.lyrics, elapsed);
+            thirdLine = getThirdLine(sl.lyrics, elapsed);
             processLivePitch(elapsed);
             repaint();
         });
@@ -173,6 +176,31 @@ public class GameplayPanel extends BackgroundPanel {
         return current;
     }
 
+    public static LyricLine getNextLine(List<LyricLine> lyrics, long elapsedMs){
+        Iterator<LyricLine> iterator = lyrics.iterator();
+        iterator.next();
+        LyricLine next = null;
+        for (LyricLine line : lyrics){
+            if (line.getStartMs() <= elapsedMs){
+                next = iterator.next();
+            }else break;
+        }
+        return next;
+    }
+
+    private static LyricLine getThirdLine(List<LyricLine> lyrics, long elapsedMs){
+        Iterator<LyricLine> iterator = lyrics.iterator();
+        iterator.next();
+        iterator.next();
+        LyricLine next = null;
+        for (LyricLine line : lyrics){
+            if (line.getStartMs() <= elapsedMs){
+                next = iterator.next();
+            }else break;
+        }
+        return next;
+    }
+
     private static PitchFrame getCurrentPitch(List<PitchFrame> pitches, long elapsedMs) {
         PitchFrame current = null;
         for (PitchFrame frame : pitches) {
@@ -197,7 +225,11 @@ public class GameplayPanel extends BackgroundPanel {
             g2d.setColor(customColor);
             FontMetrics fm = g2d.getFontMetrics();
             int x = centerX - fm.stringWidth(currentLine.getLine()) / 2;
+            int nextX = centerX - fm.stringWidth(nextLine.getLine()) / 2;
+            int thirdX = centerX - fm.stringWidth(thirdLine.getLine())/2;
             g2d.drawString(currentLine.getLine(), x, centerY);
+            g2d.drawString(nextLine.getLine(), nextX, centerY + 60);
+            g2d.drawString(thirdLine.getLine(), thirdX, centerY + 120);
         }
 
         g2d.setFont(new Font("Segoe UI", Font.BOLD, 48));
