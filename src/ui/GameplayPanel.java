@@ -8,23 +8,24 @@ import model.LyricLine;
 import model.PerformanceResult;
 import model.PitchFrame;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Properties;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class GameplayPanel extends BackgroundPanel {
 
     private LyricLine currentLine;
+    private LyricLine nextLine;
+    private LyricLine thirdLine;
     private long clockStart = -1;
     private final Timer timer;
     private final SongLoader sl = new SongLoader();
@@ -39,15 +40,17 @@ public class GameplayPanel extends BackgroundPanel {
     private String liveGrade = "-";
     private int currentUserMidi = -1;
     private int currentSongMidi = -1;
+    private int currentDifference = -1;
     private Font minecraftFont;
-    Color customColor = new Color(0xff, 0xff, 0xff, 180);
+    Color nextLinesColour = new Color(0xff, 0xff, 0xff, 180);
+    Color currentLineColour = new Color(0xd6, 0x72, 0xcc);
 
     String filePath = "settings.properties";
     Properties properties = new Properties();
 
     public GameplayPanel(String song, Consumer<PerformanceResult> onFinished) {
         try {
-            minecraftFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/Minecraft.ttf")).deriveFont(48f);
+            minecraftFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/Minecraft.ttf")).deriveFont(40f);
         } catch (FontFormatException | IOException e) {
             minecraftFont = new Font("Segoe UI", Font.PLAIN, 26);
         }
@@ -65,6 +68,8 @@ public class GameplayPanel extends BackgroundPanel {
         timer = new Timer(50, e -> {
             long elapsed = clockStart == -1 ? 0 : (System.nanoTime() - clockStart) / 1_000_000;
             currentLine = getCurrentLine(sl.lyrics, elapsed);
+            nextLine = getNextLine(sl.lyrics, elapsed);
+            thirdLine = getThirdLine(sl.lyrics, elapsed);
             processLivePitch(elapsed);
             repaint();
         });
@@ -92,6 +97,7 @@ public class GameplayPanel extends BackgroundPanel {
 
             currentUserMidi = userMidi;
             currentSongMidi = songMidi;
+            currentDifference = Math.abs(userMidi - songMidi);
 
             if (songMidi != -1) {
                 if (userMidi == -1) {
@@ -165,12 +171,51 @@ public class GameplayPanel extends BackgroundPanel {
     }
 
     private static LyricLine getCurrentLine(List<LyricLine> lyrics, long elapsedMs) {
+        Iterator<LyricLine> iterator = lyrics.iterator();
         LyricLine current = null;
-        for (LyricLine line : lyrics) {
-            if (line.getStartMs() <= elapsedMs) current = line;
-            else break;
+        for (LyricLine line : lyrics){
+            if (line.getStartMs() <= elapsedMs){
+                if (iterator.hasNext()) {
+                    current = iterator.next();
+                }else{
+                    return null;
+                }
+            }else break;
         }
         return current;
+    }
+
+    public static LyricLine getNextLine(List<LyricLine> lyrics, long elapsedMs){
+        Iterator<LyricLine> iterator = lyrics.iterator();
+        iterator.next();
+        LyricLine next = null;
+        for (LyricLine line : lyrics){
+            if (line.getStartMs() <= elapsedMs){
+                if (iterator.hasNext()) {
+                    next = iterator.next();
+                }else{
+                    return null;
+                }
+            }else break;
+        }
+        return next;
+    }
+
+    private static LyricLine getThirdLine(List<LyricLine> lyrics, long elapsedMs){
+        Iterator<LyricLine> iterator = lyrics.iterator();
+        iterator.next();
+        iterator.next();
+        LyricLine next = null;
+        for (LyricLine line : lyrics){
+            if (line.getStartMs() <= elapsedMs){
+                if (iterator.hasNext()) {
+                    next = iterator.next();
+                }else{
+                    return null;
+                }
+            }else break;
+        }
+        return next;
     }
 
     private static PitchFrame getCurrentPitch(List<PitchFrame> pitches, long elapsedMs) {
@@ -194,10 +239,22 @@ public class GameplayPanel extends BackgroundPanel {
         if (currentLine != null) {
             g2d.setColor(Color.BLACK);
             g2d.setFont(minecraftFont);
-            g2d.setColor(customColor);
+            g2d.setColor(nextLinesColour);
             FontMetrics fm = g2d.getFontMetrics();
-            int x = centerX - fm.stringWidth(currentLine.getLine()) / 2;
-            g2d.drawString(currentLine.getLine(), x, centerY);
+            if (currentLine != null) {
+                g2d.setColor(currentLineColour);
+                int x = centerX - fm.stringWidth(currentLine.getLine()) / 2;
+                g2d.drawString(currentLine.getLine(), x, centerY);
+                g2d.setColor(nextLinesColour);
+            }
+            if (nextLine != null) {
+                int nextX = centerX - fm.stringWidth(nextLine.getLine()) / 2;
+                g2d.drawString(nextLine.getLine(), nextX, centerY + 60);
+            }
+            if (thirdLine != null) {
+                int thirdX = centerX - fm.stringWidth(thirdLine.getLine())/2;
+                g2d.drawString(thirdLine.getLine(), thirdX, centerY + 120);
+            }
         }
 
         g2d.setFont(new Font("Segoe UI", Font.BOLD, 48));
@@ -206,8 +263,11 @@ public class GameplayPanel extends BackgroundPanel {
         g2d.drawString(liveGrade, getWidth() - fmGrade.stringWidth(liveGrade) - 20, 60);
 
         g2d.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        g2d.setColor(Color.BLACK);
+        g2d.setColor(Color.WHITE);
         g2d.drawString(String.valueOf(currentSongMidi), 20, 30);
         g2d.drawString(String.valueOf(currentUserMidi), 20, 52);
+        g2d.drawString(String.valueOf(currentDifference), 20, 74);
+
+
     }
 }
