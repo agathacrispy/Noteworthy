@@ -25,10 +25,7 @@ public class GameplayPanel extends BackgroundPanel {
 
     private LyricLine currentLine;
     private LyricLine nextLine;
-<<<<<<< Updated upstream
     private LyricLine thirdLine;
-=======
->>>>>>> Stashed changes
     private long clockStart = -1;
     private final Timer timer;
     private final SongLoader sl = new SongLoader();
@@ -43,8 +40,10 @@ public class GameplayPanel extends BackgroundPanel {
     private String liveGrade = "-";
     private int currentUserMidi = -1;
     private int currentSongMidi = -1;
+    private int currentDifference = -1;
     private Font minecraftFont;
-    Color customColor = new Color(0xff, 0xff, 0xff, 180);
+    Color nextLinesColour = new Color(0xff, 0xff, 0xff, 180);
+    Color currentLineColour = new Color(0xd6, 0x72, 0xcc);
 
     String filePath = "settings.properties";
     Properties properties = new Properties();
@@ -98,6 +97,7 @@ public class GameplayPanel extends BackgroundPanel {
 
             currentUserMidi = userMidi;
             currentSongMidi = songMidi;
+            currentDifference = Math.abs(userMidi - songMidi);
 
             if (songMidi != -1) {
                 if (userMidi == -1) {
@@ -170,11 +170,17 @@ public class GameplayPanel extends BackgroundPanel {
         }
     }
 
-    private static LyricLine[] getCurrentLine(List<LyricLine> lyrics, long elapsedMs) {
+    private static LyricLine getCurrentLine(List<LyricLine> lyrics, long elapsedMs) {
+        Iterator<LyricLine> iterator = lyrics.iterator();
         LyricLine current = null;
-        for (LyricLine line : lyrics) {
-            if (line.getStartMs() <= elapsedMs) current = line;
-            else break;
+        for (LyricLine line : lyrics){
+            if (line.getStartMs() <= elapsedMs){
+                if (iterator.hasNext()) {
+                    current = iterator.next();
+                }else{
+                    return null;
+                }
+            }else break;
         }
         return current;
     }
@@ -185,7 +191,11 @@ public class GameplayPanel extends BackgroundPanel {
         LyricLine next = null;
         for (LyricLine line : lyrics){
             if (line.getStartMs() <= elapsedMs){
-                next = iterator.next();
+                if (iterator.hasNext()) {
+                    next = iterator.next();
+                }else{
+                    return null;
+                }
             }else break;
         }
         return next;
@@ -198,7 +208,11 @@ public class GameplayPanel extends BackgroundPanel {
         LyricLine next = null;
         for (LyricLine line : lyrics){
             if (line.getStartMs() <= elapsedMs){
-                next = iterator.next();
+                if (iterator.hasNext()) {
+                    next = iterator.next();
+                }else{
+                    return null;
+                }
             }else break;
         }
         return next;
@@ -225,14 +239,22 @@ public class GameplayPanel extends BackgroundPanel {
         if (currentLine != null) {
             g2d.setColor(Color.BLACK);
             g2d.setFont(minecraftFont);
-            g2d.setColor(customColor);
+            g2d.setColor(nextLinesColour);
             FontMetrics fm = g2d.getFontMetrics();
-            int x = centerX - fm.stringWidth(currentLine.getLine()) / 2;
-            int nextX = centerX - fm.stringWidth(nextLine.getLine()) / 2;
-            int thirdX = centerX - fm.stringWidth(thirdLine.getLine())/2;
-            g2d.drawString(currentLine.getLine(), x, centerY);
-            g2d.drawString(nextLine.getLine(), nextX, centerY + 60);
-            g2d.drawString(thirdLine.getLine(), thirdX, centerY + 120);
+            if (currentLine != null) {
+                g2d.setColor(currentLineColour);
+                int x = centerX - fm.stringWidth(currentLine.getLine()) / 2;
+                g2d.drawString(currentLine.getLine(), x, centerY);
+                g2d.setColor(nextLinesColour);
+            }
+            if (nextLine != null) {
+                int nextX = centerX - fm.stringWidth(nextLine.getLine()) / 2;
+                g2d.drawString(nextLine.getLine(), nextX, centerY + 60);
+            }
+            if (thirdLine != null) {
+                int thirdX = centerX - fm.stringWidth(thirdLine.getLine())/2;
+                g2d.drawString(thirdLine.getLine(), thirdX, centerY + 120);
+            }
         }
 
         g2d.setFont(new Font("Segoe UI", Font.BOLD, 48));
@@ -241,8 +263,11 @@ public class GameplayPanel extends BackgroundPanel {
         g2d.drawString(liveGrade, getWidth() - fmGrade.stringWidth(liveGrade) - 20, 60);
 
         g2d.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        g2d.setColor(Color.BLACK);
+        g2d.setColor(Color.WHITE);
         g2d.drawString(String.valueOf(currentSongMidi), 20, 30);
         g2d.drawString(String.valueOf(currentUserMidi), 20, 52);
+        g2d.drawString(String.valueOf(currentDifference), 20, 74);
+
+
     }
 }

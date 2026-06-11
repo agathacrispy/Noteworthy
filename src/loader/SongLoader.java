@@ -72,9 +72,7 @@ public class SongLoader {
                     long centiseconds = Long.parseLong(matcher.group(3));
                     String text = matcher.group(4).trim();
                     long startMs = minutes * 60000 + seconds * 1000 + centiseconds * 10;
-                    if (lyrics.getNextLine() != null) {
-                        lyrics.add(new LyricLine(text, startMs));
-                    }
+                    lyrics.add(new LyricLine(text, startMs));
                 }
             }
             br.close();
