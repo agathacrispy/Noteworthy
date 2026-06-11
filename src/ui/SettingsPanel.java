@@ -22,6 +22,7 @@ public class SettingsPanel extends BackgroundPanel {
 
     private Font minecraftFont;
     private Font minecraftFontLarge;
+    private Font buttonFont;
 
     private final AudioInputManager AIM = new AudioInputManager();
     private final JButton recordButton = new JButton("Record");
@@ -65,6 +66,12 @@ public class SettingsPanel extends BackgroundPanel {
             e.printStackTrace();
         }
 
+        try {
+            buttonFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/Minecraft.ttf")).deriveFont(20f);
+        } catch (FontFormatException | IOException e) {
+            buttonFont = new Font("Segoe UI", Font.PLAIN, 14);
+        }
+
         UIManager.put("Slider.focus", new Color(0, 0, 0, 0));
 
         setLayout(new BorderLayout(20, 20));
@@ -78,6 +85,12 @@ public class SettingsPanel extends BackgroundPanel {
 
         JPanel topPanel = new JPanel(new BorderLayout());
         JButton backBtn = new JButton("Back");
+        backBtn.setOpaque(false);
+        backBtn.setContentAreaFilled(false);
+        backBtn.setBorderPainted(false);
+        backBtn.setForeground(Color.WHITE);
+        backBtn.setFont(buttonFont);
+        backBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         backBtn.addActionListener(e -> onBack.run());
         topPanel.add(backBtn, BorderLayout.WEST);
         topPanel.setOpaque(false);
@@ -159,7 +172,19 @@ public class SettingsPanel extends BackgroundPanel {
         });
 
         buttonPanel.add(recordButton);
+        recordButton.setOpaque(false);
+        recordButton.setContentAreaFilled(false);
+        recordButton.setBorderPainted(false);
+        recordButton.setForeground(Color.WHITE);
+        recordButton.setFont(buttonFont);
+        recordButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         buttonPanel.add(playButton);
+        playButton.setOpaque(false);
+        playButton.setContentAreaFilled(false);
+        playButton.setBorderPainted(false);
+        playButton.setForeground(Color.WHITE);
+        playButton.setFont(buttonFont);
+        playButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         buttonPanel.setOpaque(false);
         add(buttonPanel, BorderLayout.CENTER);
 
