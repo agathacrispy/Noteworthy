@@ -2,17 +2,19 @@ package ui;
 
 import audio.AudioInputManager;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Line;
+import javax.sound.sampled.Mixer;
+import javax.sound.sampled.TargetDataLine;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.Properties;
-import javax.sound.sampled.*;
 import java.util.ArrayList;
+import java.util.Properties;
 
 public class SettingsPanel extends BackgroundPanel {
 

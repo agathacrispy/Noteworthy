@@ -41,8 +41,11 @@ public abstract class BackgroundPanel extends JPanel {
         });
     }
 
-    /** Called once per frame tick, before repaint. Override in subclasses for per-frame animation. */
-    protected void tick() {}
+    /**
+     * Called once per frame tick, before repaint. Override in subclasses for per-frame animation.
+     */
+    protected void tick() {
+    }
 
     @Override
     public void addNotify() {
@@ -65,7 +68,7 @@ public abstract class BackgroundPanel extends JPanel {
             BufferedImage strip = gc.createCompatibleImage(sw * 2, h, Transparency.TRANSLUCENT);
             Graphics2D dg = strip.createGraphics();
             dg.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            dg.drawImage(RAW_LAYERS[i], 0,  0, sw, h, null);
+            dg.drawImage(RAW_LAYERS[i], 0, 0, sw, h, null);
             dg.drawImage(RAW_LAYERS[i], sw, 0, sw, h, null);
             dg.dispose();
             scaledLayers[i] = strip;

@@ -9,8 +9,7 @@ public class PerformanceResult {
     private List<PitchFrame> userPitches;
     private List<PitchFrame> songPitches;
 
-    public PerformanceResult(List<Double> frameScores, double similarity, String grade,
-                             List<PitchFrame> userPitches, List<PitchFrame> songPitches) {
+    public PerformanceResult(List<Double> frameScores, double similarity, String grade, List<PitchFrame> userPitches, List<PitchFrame> songPitches) {
         this.frameScores = frameScores;
         this.similarity = similarity;
         this.grade = grade;
