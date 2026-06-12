@@ -6,16 +6,15 @@ import model.Song;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.Properties;
 import java.util.regex.Matcher;
-import java.io.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class SongLoader {
     public ArrayList<LyricLine> lyrics = new ArrayList<LyricLine>();

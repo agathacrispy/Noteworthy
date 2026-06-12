@@ -6,7 +6,6 @@ import model.Song;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.BasicStroke;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -28,7 +27,7 @@ public class MainMenuPanel extends BackgroundPanel {
 
     private final SongLoader sl = new SongLoader();
     private final ArrayList<Song> songs;
-    private final Map<Song, JPanel>  rowMap        = new HashMap<>();
+    private final Map<Song, JPanel> rowMap = new HashMap<>();
     private final Map<Song, JLabel> titleLabelMap = new HashMap<>();
 
     private BufferedImage start;
@@ -129,7 +128,7 @@ public class MainMenuPanel extends BackgroundPanel {
             public void mouseClicked(MouseEvent e) {
                 if (startBounds[0] == null || !startBounds[0].contains(e.getPoint())) return;
                 if (selectedSong != null) {
-                    onSongSelected.accept(selectedSong.getFolderName());
+                    onSongSelected.accept(selectedSong.folderName());
                 } else {
                     showSelectMsg = true;
                     centerPanel.repaint();
@@ -175,9 +174,9 @@ public class MainMenuPanel extends BackgroundPanel {
                 g2d.fillRect(0, 0, w, getHeight());
 
                 int tH = w * 9 / 16;
-                if (displaySong.getThumbnail() != null) {
+                if (displaySong.thumbnail() != null) {
                     g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                    g2d.drawImage(displaySong.getThumbnail(), 0, 0, w, tH, null);
+                    g2d.drawImage(displaySong.thumbnail(), 0, 0, w, tH, null);
                     g2d.setColor(new Color(0x3a, 0x35, 0x55));
                     //g2d.setColor(Color.WHITE);
                     g2d.setStroke(new BasicStroke(1));
@@ -189,8 +188,8 @@ public class MainMenuPanel extends BackgroundPanel {
                 g2d.setFont(menuFont.deriveFont(11f));
                 FontMetrics fm = g2d.getFontMetrics();
                 int tagX = 10, tagY = tH + 12;
-                tagX = drawChips(g2d, displaySong.getGenre(), tagX, tagY, new Color(0xd6, 0x72, 0xcc), fm);
-                drawChips(g2d, displaySong.getDuration(), tagX, tagY, new Color(0x3a, 0x35, 0x55), fm);
+                tagX = drawChips(g2d, displaySong.genre(), tagX, tagY, new Color(0xd6, 0x72, 0xcc), fm);
+                drawChips(g2d, displaySong.duration(), tagX, tagY, new Color(0x3a, 0x35, 0x55), fm);
             }
         };
         detailsPanel.setOpaque(false);
@@ -237,12 +236,18 @@ public class MainMenuPanel extends BackgroundPanel {
 
         if (prev != null) {
             JLabel lbl = titleLabelMap.get(prev);
-            if (lbl != null) { lbl.setText(prev.getTitle()); lbl.setForeground(Color.WHITE); }
+            if (lbl != null) {
+                lbl.setText(prev.title());
+                lbl.setForeground(Color.WHITE);
+            }
             if (rowMap.containsKey(prev)) rowMap.get(prev).repaint();
         }
         if (selectedSong != null) {
             JLabel lbl = titleLabelMap.get(selectedSong);
-            if (lbl != null) { lbl.setText(selectedSong.getTitle() + " - selected!"); lbl.setForeground(Color.RED); }
+            if (lbl != null) {
+                lbl.setText(selectedSong.title() + " - selected!");
+                lbl.setForeground(Color.RED);
+            }
             if (rowMap.containsKey(selectedSong)) rowMap.get(selectedSong).repaint();
         }
 
@@ -291,13 +296,13 @@ public class MainMenuPanel extends BackgroundPanel {
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 64));
         row.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        JLabel titleLabel = new JLabel(song.getTitle());
+        JLabel titleLabel = new JLabel(song.title());
         titleLabel.setFont(songFont);
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(5, 14, 2, 0));
         titleLabelMap.put(song, titleLabel);
 
-        JLabel artistLabel = new JLabel(song.getArtist());
+        JLabel artistLabel = new JLabel(song.artist());
         artistLabel.setFont(artistFont);
         artistLabel.setForeground(new Color(0xd6, 0x72, 0xcc));
         artistLabel.setBorder(BorderFactory.createEmptyBorder(0, 14, 5, 0));

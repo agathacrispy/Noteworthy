@@ -1,14 +1,13 @@
 package audio;
 
 import javax.sound.sampled.*;
-import javax.swing.*;
 import java.io.ByteArrayOutputStream;
 
 public class AudioInputManager {
     static TargetDataLine line;
+    ByteArrayOutputStream bucket = new ByteArrayOutputStream();
     private volatile boolean isRecording = false;
     private boolean playReady = false;
-    ByteArrayOutputStream bucket = new ByteArrayOutputStream();
 
     public void startRecording(String selectedDevice) {
         bucket.reset();

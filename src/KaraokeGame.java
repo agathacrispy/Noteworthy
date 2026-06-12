@@ -1,9 +1,5 @@
 import model.PerformanceResult;
-import ui.GameplayPanel;
-import ui.MainMenuPanel;
-import ui.ResultsPanel;
-import ui.SettingsPanel;
-import ui.TitlePanel;
+import ui.*;
 
 import javax.swing.*;
 import java.awt.*;
