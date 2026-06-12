@@ -8,12 +8,16 @@ import model.LyricLine;
 import model.PerformanceResult;
 import model.PitchFrame;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,11 +42,13 @@ public class GameplayPanel extends BackgroundPanel {
     private int bucketOffset = 0;
     private final List<Double> runningScores = new ArrayList<>();
     private final List<PitchFrame> liveUserPitches = new ArrayList<>();
-    private String liveGrade = "-";
+    private String liveGrade = "Eric";
     private int currentUserMidi = -1;
     private int currentSongMidi = -1;
     private int currentDifference = -1;
+    private static final String[] GRADE_NAMES = {"a+","a","a-","b+","b","b-","c+","c","c-","d","f","eric"};
     private Font minecraftFont;
+    private final BufferedImage[] gradeImages = new BufferedImage[GRADE_NAMES.length];
     String filePath = "settings.properties";
     Properties properties = new Properties();
 
@@ -55,12 +61,20 @@ public class GameplayPanel extends BackgroundPanel {
 
         this.onFinished = onFinished;
 
+        for (int i = 0; i < GRADE_NAMES.length; i++) {
+            try { gradeImages[i] = javax.imageio.ImageIO.read(new File("res/" + GRADE_NAMES[i] + ".png")); }
+            catch (IOException ignored) {
+                System.out.println("cant load grade image");
+            }
+        }
+
         JButton skipBtn = new JButton("Skip to Results (TEMP)");
         skipBtn.addActionListener(e -> onSongFinished());
         add(skipBtn);
 
         loadProperties();
         sl.loadLyrics(song);
+        sl.lyrics.add(0, new model.LyricLine("", 0));
         sl.loadPitches(song);
 
         timer = new Timer(50, e -> {
@@ -94,14 +108,8 @@ public class GameplayPanel extends BackgroundPanel {
             currentSongMidi = songMidi;
             currentDifference = Math.abs(userMidi - songMidi);
 
-            if (songMidi != -1) {
-                if (userMidi == -1) {
-                    runningScores.add(0.0);
-                } else {
-                    int diff = Math.abs(userMidi - songMidi);
-                    runningScores.add(100.0 * Math.exp(-ScoringEngine.getK() * diff * diff));
-                }
-            }
+            double s = ScoringEngine.scoreFrame(userMidi, songMidi);
+            if (s >= 0) runningScores.add(s);
 
             bucketOffset += PitchDetector.HOP_BYTES;
         }
@@ -173,7 +181,7 @@ public class GameplayPanel extends BackgroundPanel {
 
     private static int findCurrentLineIndex(List<LyricLine> lyrics, long elapsedMs) {
         int idx = 0;
-        for (int i = 0; i < lyrics.size(); i++) {
+        for (int i = 1; i < lyrics.size(); i++) {
             if (lyrics.get(i).getStartMs() <= elapsedMs) idx = i;
             else break;
         }
@@ -202,7 +210,7 @@ public class GameplayPanel extends BackgroundPanel {
             FontMetrics fm = g2d.getFontMetrics();
             int anchorY = (int) (getHeight() * 0.52);
 
-            for (int i = Math.max(0, currentLineIndex - 1); i < Math.min(sl.lyrics.size(), currentLineIndex + 4); i++) {
+            for (int i = 0; i < Math.min(sl.lyrics.size(), currentLineIndex + 4); i++) {
                 float dist = i * LINE_HEIGHT - visualScrollY;
                 float absDist = Math.abs(dist);
 
@@ -232,10 +240,16 @@ public class GameplayPanel extends BackgroundPanel {
             }
         }
 
-        g2d.setFont(new Font("Segoe UI", Font.BOLD, 48));
-        FontMetrics fmGrade = g2d.getFontMetrics();
-        g2d.setColor(Color.BLACK);
-        g2d.drawString(liveGrade, getWidth() - fmGrade.stringWidth(liveGrade) - 20, 60);
+        BufferedImage gradeImg = null;
+        for (int i = 0; i < GRADE_NAMES.length; i++) {
+            if (GRADE_NAMES[i].equals(liveGrade.toLowerCase())) { gradeImg = gradeImages[i]; break; }
+        }
+        if (gradeImg != null) {
+            int imgH = 90;
+            int imgW = gradeImg.getWidth() * imgH / gradeImg.getHeight();
+            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            g2d.drawImage(gradeImg, getWidth() - imgW - 10, 10, imgW, imgH, null);
+        }
 
         g2d.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         g2d.setColor(Color.WHITE);
