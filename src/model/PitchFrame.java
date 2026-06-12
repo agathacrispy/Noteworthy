@@ -1,6 +1,5 @@
 package model;
 
-
 public class PitchFrame {
     private final long ms;
     private final int pitch;
