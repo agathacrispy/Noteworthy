@@ -2,23 +2,49 @@ package ui;
 
 import model.PerformanceResult;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class ResultsPanel extends BackgroundPanel {
 
     private final PerformanceResult result;
+    private final BufferedImage gradeImg;
 
     public ResultsPanel(PerformanceResult result, Runnable onBackToMenu) {
         this.result = result;
+
+        BufferedImage img = null;
+        try { img = ImageIO.read(new File("res/" + result.getGrade().toLowerCase() + ".png")); }
+        catch (IOException ignored) {}
+        gradeImg = img;
+
+        Font menuFont;
+        try {
+            menuFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/Minecraft.ttf")).deriveFont(20f);
+        } catch (FontFormatException | IOException e) {
+            menuFont = new Font("Segoe UI", Font.PLAIN, 20);
+        }
+
         setLayout(new BorderLayout());
 
         JButton backBtn = new JButton("Back to Menu");
+        backBtn.setOpaque(false);
+        backBtn.setContentAreaFilled(false);
+        backBtn.setBorderPainted(false);
+        backBtn.setForeground(Color.WHITE);
+        backBtn.setFont(menuFont);
+        backBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         backBtn.addActionListener(e -> onBackToMenu.run());
 
-        JPanel top = new JPanel();
-        top.add(backBtn);
-        add(top, BorderLayout.NORTH);
+        JPanel topBar = new JPanel(new BorderLayout());
+        topBar.setOpaque(false);
+        topBar.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 0));
+        topBar.add(backBtn, BorderLayout.WEST);
+        add(topBar, BorderLayout.NORTH);
     }
 
     @Override
@@ -30,9 +56,12 @@ public class ResultsPanel extends BackgroundPanel {
         int cx = getWidth() / 2;
         int cy = getHeight() / 2;
 
-        g2d.setFont(new Font("Arial", Font.BOLD, 160));
-        g2d.setColor(Color.BLACK);
-        g2d.drawString(result.getGrade(), 80, cy + 60);
+        if (gradeImg != null) {
+            int imgH = 220;
+            int imgW = gradeImg.getWidth() * imgH / gradeImg.getHeight();
+            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            g2d.drawImage(gradeImg, cx - imgW / 2, cy - imgH / 2, imgW, imgH, null);
+        }
 
         drawPitchGraph(g2d);
     }
