@@ -7,7 +7,7 @@ import java.util.List;
 
 public class ScoringEngine {
 
-    private static final double K = 0.003;
+    private static final double K = 0.02;
 
     public static double scoreFrame(int userMidi, int songMidi) {
         if (userMidi == -1 || songMidi == -1) return -1;
