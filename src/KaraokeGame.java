@@ -1,3 +1,4 @@
+import audio.AudioInputManager;
 import model.PerformanceResult;
 import ui.*;
 
@@ -8,6 +9,7 @@ import java.awt.event.KeyEvent;
 public class KaraokeGame {
 
     private static JFrame frame;
+    private static final AudioInputManager AIM = new AudioInputManager();
 
     public static void main(String[] args) {
         System.setProperty("sun.java2d.opengl", "true");
@@ -44,7 +46,7 @@ public class KaraokeGame {
     }
 
     public static void showSettings() {
-        swap(new SettingsPanel(() -> showMainMenu()));
+        swap(new SettingsPanel(AIM, () -> showMainMenu()));
     }
 
     public static void showGameplay(String song) {

@@ -73,6 +73,8 @@ public class GameplayPanel extends BackgroundPanel {
         add(skipBtn);
 
         loadProperties();
+        int savedMicSens = Integer.parseInt(properties.getProperty("micSensitivity", "50"));
+        AIM.setCurrentMicSens(savedMicSens);
         sl.loadLyrics(song);
         sl.lyrics.add(0, new model.LyricLine("", 0));
         sl.loadPitches(song);
@@ -124,6 +126,9 @@ public class GameplayPanel extends BackgroundPanel {
     private void loadAudio(String song) {
         backing = loadClip("songs/" + song + "/backing.wav");
         vocals = loadClip("songs/" + song + "/vocals.wav");
+        int savedVolume = Integer.parseInt(properties.getProperty("volume", "50"));
+        applyVolume(backing, savedVolume);
+        applyVolume(vocals, savedVolume);
         if (backing != null) {
             backing.addLineListener(event -> {
                 if (event.getType() == LineEvent.Type.STOP) {
@@ -186,6 +191,15 @@ public class GameplayPanel extends BackgroundPanel {
             else break;
         }
         return idx;
+    }
+
+    private void applyVolume(Clip clip, int volumePercent){
+        if (clip != null && clip.isControlSupported(FloatControl.Type.MASTER_GAIN)){
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            float volume = volumePercent / 100f;
+            float decibels = (volume <= 0.0f) ? gainControl.getMinimum() : (float) (Math.log10(volume) * 20.0f);
+            gainControl.setValue(decibels);
+        }
     }
 
     private static PitchFrame getCurrentPitch(List<PitchFrame> pitches, long elapsedMs) {

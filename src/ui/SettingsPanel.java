@@ -26,7 +26,7 @@ public class SettingsPanel extends BackgroundPanel {
     private Font minecraftFontLarge;
     private Font buttonFont;
 
-    private final AudioInputManager AIM = new AudioInputManager();
+    private final AudioInputManager AIM;
     private final JButton recordButton = new JButton("Record");
     private final JButton playButton = new JButton("Play");
 
@@ -35,8 +35,12 @@ public class SettingsPanel extends BackgroundPanel {
     String filePath = "settings.properties";
     Properties properties = new Properties();
 
-    public SettingsPanel(Runnable onBack) {
+    public SettingsPanel(AudioInputManager AIM, Runnable onBack) {
         loadProperties();
+
+        this.AIM = AIM;
+        AIM.setCurrentPlaybackVolume(Integer.parseInt(properties.getProperty("volume", "50")));
+        AIM.setCurrentMicSens(Integer.parseInt(properties.getProperty("micSensitivity", "50")));
 
         Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
         ArrayList<String> inputs = new ArrayList<>();
@@ -106,7 +110,7 @@ public class SettingsPanel extends BackgroundPanel {
         JLabel volumeLabel = new JLabel("output volume", SwingConstants.CENTER);
         volumeLabel.setForeground(customColor);
         volumeLabel.setFont(minecraftFont);
-        volumeSlider = new JSlider(0, 100, Integer.parseInt(properties.getProperty("volume")));
+        volumeSlider = new JSlider(0, 100, Integer.parseInt(properties.getProperty("volume", "50")));
         volumeSlider.setOpaque(false);
         volumePanel.add(volumeLabel, BorderLayout.NORTH);
         volumePanel.add(volumeSlider, BorderLayout.CENTER);
@@ -123,7 +127,7 @@ public class SettingsPanel extends BackgroundPanel {
         JLabel micLabel = new JLabel("mic sensitivity", SwingConstants.CENTER);
         micLabel.setForeground(customColor);
         micLabel.setFont(minecraftFont);
-        micSensSlider = new JSlider(0, 100, Integer.parseInt(properties.getProperty("micSensitivity")));
+        micSensSlider = new JSlider(0, 100, Integer.parseInt(properties.getProperty("micSensitivity", "50")));
         micSensSlider.setOpaque(false);
         micPanel.add(micLabel, BorderLayout.NORTH);
         micPanel.add(micSensSlider, BorderLayout.CENTER);
@@ -158,7 +162,6 @@ public class SettingsPanel extends BackgroundPanel {
 
         recordButton.addActionListener(e -> {
             if (!AIM.isRecording()) {
-                loadProperties();
                 AIM.startRecording(properties.getProperty("micDevice"));
                 recordButton.setText("Stop");
             } else {
@@ -193,6 +196,7 @@ public class SettingsPanel extends BackgroundPanel {
         volumeSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
+                AIM.setCurrentPlaybackVolume(volumeSlider.getValue());
                 if (!volumeSlider.getValueIsAdjusting()) {
                     saveSetting("volume", String.valueOf(volumeSlider.getValue()));
                 }
@@ -202,6 +206,7 @@ public class SettingsPanel extends BackgroundPanel {
         micSensSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
+                AIM.setCurrentMicSens(micSensSlider.getValue());
                 if (!micSensSlider.getValueIsAdjusting()) {
                     saveSetting("micSensitivity", String.valueOf(micSensSlider.getValue()));
                 }
