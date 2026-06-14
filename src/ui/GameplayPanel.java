@@ -42,7 +42,9 @@ public class GameplayPanel extends BackgroundPanel {
     private int bucketOffset = 0;
     private final List<Double> runningScores = new ArrayList<>();
     private final List<PitchFrame> liveUserPitches = new ArrayList<>();
-    private String liveGrade = "Eric";
+    private String liveGrade = null;
+    private double liveSimilarity = 0;
+    private long songDurationMs = 0;
     private int currentUserMidi = -1;
     private int currentSongMidi = -1;
     private int currentDifference = -1;
@@ -68,9 +70,22 @@ public class GameplayPanel extends BackgroundPanel {
             }
         }
 
-        JButton skipBtn = new JButton("Skip to Results (TEMP)");
+        setLayout(new BorderLayout());
+
+        JButton skipBtn = new JButton("Skip to Results");
+        skipBtn.setOpaque(false);
+        skipBtn.setContentAreaFilled(false);
+        skipBtn.setBorderPainted(false);
+        skipBtn.setForeground(Color.WHITE);
+        skipBtn.setFont(minecraftFont.deriveFont(20f));
+        skipBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         skipBtn.addActionListener(e -> onSongFinished());
-        add(skipBtn);
+
+        JPanel topBar = new JPanel(new BorderLayout());
+        topBar.setOpaque(false);
+        topBar.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 0));
+        topBar.add(skipBtn, BorderLayout.WEST);
+        add(topBar, BorderLayout.NORTH);
 
         loadProperties();
         int savedMicSens = Integer.parseInt(properties.getProperty("micSensitivity", "50"));
@@ -119,7 +134,8 @@ public class GameplayPanel extends BackgroundPanel {
         if (!runningScores.isEmpty()) {
             double sum = 0;
             for (double s : runningScores) sum += s;
-            liveGrade = ScoringEngine.computeGrade(sum / runningScores.size());
+            liveSimilarity = sum / runningScores.size();
+            liveGrade = ScoringEngine.computeGrade(liveSimilarity);
         }
     }
 
@@ -130,6 +146,7 @@ public class GameplayPanel extends BackgroundPanel {
         applyVolume(backing, savedVolume);
         applyVolume(vocals, savedVolume);
         if (backing != null) {
+            songDurationMs = backing.getMicrosecondLength() / 1000;
             backing.addLineListener(event -> {
                 if (event.getType() == LineEvent.Type.STOP) {
                     SwingUtilities.invokeLater(this::onSongFinished);
@@ -255,8 +272,10 @@ public class GameplayPanel extends BackgroundPanel {
         }
 
         BufferedImage gradeImg = null;
-        for (int i = 0; i < GRADE_NAMES.length; i++) {
-            if (GRADE_NAMES[i].equals(liveGrade.toLowerCase())) { gradeImg = gradeImages[i]; break; }
+        if (liveGrade != null) {
+            for (int i = 0; i < GRADE_NAMES.length; i++) {
+                if (GRADE_NAMES[i].equals(liveGrade.toLowerCase())) { gradeImg = gradeImages[i]; break; }
+            }
         }
         if (gradeImg != null) {
             int imgH = 90;
@@ -265,10 +284,24 @@ public class GameplayPanel extends BackgroundPanel {
             g2d.drawImage(gradeImg, getWidth() - imgW - 10, 10, imgW, imgH, null);
         }
 
+        /*
         g2d.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         g2d.setColor(Color.WHITE);
         g2d.drawString(String.valueOf(currentSongMidi), 20, 30);
         g2d.drawString(String.valueOf(currentUserMidi), 20, 52);
         g2d.drawString(String.valueOf(currentDifference), 20, 74);
+        g2d.drawString(String.format("%.1f", liveSimilarity), 20, 96);
+         */
+
+        if (songDurationMs > 0 && clockStart != -1) {
+            long elapsed = (System.nanoTime() - clockStart) / 1_000_000;
+            float progress = Math.min(1f, (float) elapsed / songDurationMs);
+            int barH = 18;
+            int barY = getHeight() - barH;
+            g2d.setColor(new Color(0x1c, 0x1a, 0x2e, 200));
+            g2d.fillRect(0, barY, getWidth(), barH);
+            g2d.setColor(new Color(0xd6, 0x72, 0xcc));
+            g2d.fillRect(0, barY, (int) (getWidth() * progress), barH);
+        }
     }
 }

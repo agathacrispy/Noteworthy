@@ -41,9 +41,6 @@ public abstract class BackgroundPanel extends JPanel {
         });
     }
 
-    /**
-     * Called once per frame tick, before repaint. Override in subclasses for per-frame animation.
-     */
     protected void tick() {
     }
 
