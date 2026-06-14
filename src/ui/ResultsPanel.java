@@ -1,5 +1,6 @@
 package ui;
 
+
 import model.PerformanceResult;
 
 import javax.imageio.ImageIO;
@@ -16,7 +17,6 @@ public class ResultsPanel extends BackgroundPanel {
 
     public ResultsPanel(PerformanceResult result, Runnable onBackToMenu) {
         this.result = result;
-
         BufferedImage img = null;
         try { img = ImageIO.read(new File("res/" + result.getGrade().toLowerCase() + ".png")); }
         catch (IOException ignored) {}
@@ -39,6 +39,7 @@ public class ResultsPanel extends BackgroundPanel {
         backBtn.setFont(menuFont);
         backBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         backBtn.addActionListener(e -> onBackToMenu.run());
+
 
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setOpaque(false);
@@ -66,6 +67,8 @@ public class ResultsPanel extends BackgroundPanel {
         drawPitchGraph(g2d);
     }
 
+
+
     private void drawPitchGraph(Graphics2D g2d) {
         int gx = getWidth() / 2;
         int gy = 40;
@@ -86,8 +89,43 @@ public class ResultsPanel extends BackgroundPanel {
         drawPitchLine(g2d, result.getUserPitches(), gx, gy, gw, gh, midiMin, midiMax, new Color(220, 60, 60, 180));
     }
 
+    private double[] calculateRegression(java.util.List<model.PitchFrame> frames, double A, double D) {
+        double sumX = 0, sumX2 = 0, sumZ = 0, sumXZ = 0;
+        int n = 0;
+
+        for (int i = 0; i < frames.size(); i++) {
+            int pitch = frames.get(i).getPitch();
+
+            double yPrime = (pitch - D) / A;
+
+            yPrime = Math.max(-1.0, Math.min(1.0, yPrime));
+            double z = Math.asin(yPrime);
+
+            sumX += i;
+            sumX2 += (double) i * i;
+            sumZ += z;
+            sumXZ += (double) i * z;
+            n++;
+        }
+
+        if (n < 2) return new double[]{0, 0};
+
+        double phi = (sumZ * sumX2 - sumX * sumXZ) / (n * sumX2 - sumX * sumX);
+        double o = (n * sumXZ - sumZ * sumX) / (n * sumX2 - sumX * sumX);
+
+        return new double[]{phi, o};
+    }
+
     private void drawPitchLine(Graphics2D g2d, java.util.List<model.PitchFrame> frames, int gx, int gy, int gw, int gh, int midiMin, int midiMax, Color color) {
         if (frames == null || frames.isEmpty()) return;
+
+        double A = (midiMax - midiMin) / 2.0;
+        double D = (midiMax + midiMin) / 2.0;
+
+        double[] coeffs = calculateRegression(frames, A, D);
+        double phi = coeffs[0];
+        double o = coeffs[1];
+
         g2d.setColor(color);
         g2d.setStroke(new BasicStroke(2));
 
@@ -95,17 +133,20 @@ public class ResultsPanel extends BackgroundPanel {
         int prevX = -1, prevY = -1;
 
         for (int i = 0; i < n; i++) {
-            int midi = frames.get(i).getPitch();
-            if (midi == -1) {
-                prevX = -1;
-                continue;
-            }
-            int px = gx + (int) ((double) i / n * gw);
-            int py = gy + gh - (int) ((double) (midi - midiMin) / (midiMax - midiMin) * gh);
 
-            if (prevX != -1) g2d.drawLine(prevX, prevY, px, py);
-            prevX = px;
-            prevY = py;
+            double yVal = A * Math.sin((o * i + phi)*180/Math.PI) + D;
+
+            int px = gx + (int) ((double) i / n * gw);
+            int py = gy + gh - (int) ((yVal - midiMin) / (midiMax - midiMin) * gh);
+
+
+            if (frames.get(i).getPitch() != -1) {
+                if (prevX != -1) g2d.drawLine(prevX, prevY, px, py);
+                prevX = px;
+                prevY = py;
+            } else {
+                prevX = -1;
+            }
         }
     }
 }
